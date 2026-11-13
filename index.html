@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>6A Maths DSE 2020 MC 成績查詢</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: an OMR answer-sheet ledger. Login card -> student report (score, level scale, Set A/B, 45-cell sheet) or teacher ledger with filters. */
+:root {
+  --paper: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #18212d;
+  --muted: #5b6676;
+  --line: #d9dfe8;
+  --accent: #1f4fbf;
+  --on-accent: #ffffff;
+  --setA: #0f7a6c; --setA-soft: #e2f3f0;
+  --setB: #8a3fb5; --setB-soft: #f2e8f8;
+  --ok: #1d8348; --ok-soft: #dff2e6;
+  --bad: #c2352b; --bad-soft: #fbe5e2;
+  --blank: #8f99a8; --blank-soft: #eceff3;
+  --hover: #f7f9fc;
+  --lv0: #c9cfd8; --lv1: #b9cdf3; --lv2: #8fb0ef; --lv3: #5f8ce6; --lv4: #3c6fd9; --lv5: #2553b8; --lv6: #163a8a;
+  --lv-text-dark: #18212d;
+  --font-display: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11161d; --surface: #182029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2b3642;
+    --accent: #7fa4ff; --on-accent: #0d1420;
+    --setA: #4cc4b2; --setA-soft: #15322f; --setB: #c79bf0; --setB-soft: #2e2240;
+    --ok: #52c785; --ok-soft: #173726; --bad: #ff8a7d; --bad-soft: #3d1f1d; --blank: #7b8696; --blank-soft: #232c37; --hover: #1d2631;
+    --lv0: #3a4350; --lv1: #2b3d5e; --lv2: #31508a; --lv3: #3d65b0; --lv4: #557fd0; --lv5: #7c9fe6; --lv6: #a9c1f5;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11161d; --surface: #182029; --ink: #e6ebf2; --muted: #9aa6b6; --line: #2b3642;
+  --accent: #7fa4ff; --on-accent: #0d1420;
+  --setA: #4cc4b2; --setA-soft: #15322f; --setB: #c79bf0; --setB-soft: #2e2240;
+  --ok: #52c785; --ok-soft: #173726; --bad: #ff8a7d; --bad-soft: #3d1f1d; --blank: #7b8696; --blank-soft: #232c37; --hover: #1d2631;
+  --lv0: #3a4350; --lv1: #2b3d5e; --lv2: #31508a; --lv3: #3d65b0; --lv4: #557fd0; --lv5: #7c9fe6; --lv6: #a9c1f5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.55; min-height: 100vh; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 20px clamp(16px, 3vw, 32px) 56px; display: grid; gap: 20px; }
+.wrap.narrow { max-width: 980px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-family: var(--font-display); font-size: clamp(21px, 3vw, 28px); letter-spacing: .01em; }
+h2 { font-size: 17px; }
+h3 { font-size: 15px; }
+p { margin: 0; }
+.sub { color: var(--muted); margin-top: 4px; }
+.mono { font-family: var(--font-mono); }
+.num { font-variant-numeric: tabular-nums; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.btn { border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn:disabled { opacity: .6; cursor: progress; }
+
+/* top bar */
+.topbar { display: flex; flex-wrap: wrap; gap: 10px 20px; justify-content: space-between; align-items: center; }
+.who { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+.who strong { color: var(--ink); font-size: 14px; }
+.role { border-radius: 999px; padding: 1px 10px; font-size: 12px; border: 1px solid var(--line); }
+
+/* login */
+.login-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+.login { width: min(420px, 100%); display: grid; gap: 18px; padding: 26px 24px 22px; }
+.login .brand { display: grid; gap: 4px; }
+.login .brand .eyebrow { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; background: var(--paper); }
+.tab { border: 0; background: transparent; padding: 8px; border-radius: 8px; cursor: pointer; color: var(--muted); font-weight: 500; }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field input, .field select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); font-size: 15px; width: 100%; }
+.pwwrap { position: relative; }
+.pwwrap input { padding-right: 64px; }
+.pwwrap button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; padding: 4px 6px; }
+.login .go { padding: 10px; font-size: 15px; font-weight: 500; }
+.err { color: var(--bad); font-size: 13px; min-height: 1.4em; }
+.hint { color: var(--muted); font-size: 12.5px; }
+
+/* student report */
+.hero { padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px 22px; align-items: end; }
+.metric { display: grid; gap: 2px; }
+.metric .k { color: var(--muted); font-size: 13px; }
+.metric .v { font-size: 34px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.metric .v small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.metric .n { color: var(--muted); font-size: 12.5px; }
+.lvbadge { display: inline-block; justify-self: start; border-radius: 8px; padding: 2px 12px; font-weight: 700; font-size: 26px; line-height: 1.3; }
+.lvchip { display: inline-block; border-radius: 6px; padding: 1px 8px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+[data-lvi="0"] { background: var(--lv0); color: var(--ink); }
+[data-lvi="1"] { background: var(--lv1); color: var(--lv-text-dark); }
+[data-lvi="2"] { background: var(--lv2); color: var(--lv-text-dark); }
+[data-lvi="3"] { background: var(--lv3); color: #fff; }
+[data-lvi="4"] { background: var(--lv4); color: #fff; }
+[data-lvi="5"] { background: var(--lv5); color: #fff; }
+[data-lvi="6"] { background: var(--lv6); color: #fff; }
+:root[data-theme="dark"] [data-lvi="1"], :root[data-theme="dark"] [data-lvi="2"] { color: #e6ebf2; }
+:root[data-theme="dark"] [data-lvi="5"], :root[data-theme="dark"] [data-lvi="6"] { color: #0d1420; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-lvi="1"], :root:not([data-theme="light"]) [data-lvi="2"] { color: #e6ebf2; }
+  :root:not([data-theme="light"]) [data-lvi="5"], :root:not([data-theme="light"]) [data-lvi="6"] { color: #0d1420; }
+}
+.scale { padding: 16px 20px 14px; display: grid; gap: 10px; }
+.scale-bar { position: relative; display: flex; height: 26px; border-radius: 6px; overflow: visible; margin-top: 22px; }
+.scale-bar .seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+.scale-bar .seg:first-child { border-radius: 6px 0 0 6px; }
+.scale-bar .seg:last-child { border-radius: 0 6px 6px 0; }
+.scale-bar .seg.dim { opacity: .45; }
+.marker { position: absolute; top: -24px; transform: translateX(-50%); display: grid; justify-items: center; pointer-events: none; }
+.marker b { background: var(--ink); color: var(--paper); font-size: 12px; border-radius: 5px; padding: 1px 7px; font-variant-numeric: tabular-nums; }
+.marker i { width: 2px; height: 34px; background: var(--ink); }
+.scale-ticks { position: relative; height: 16px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.scale-ticks span { position: absolute; transform: translateX(-50%); }
+.scale-legend { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 12.5px; color: var(--muted); }
+.scale-legend .on { outline: 2px solid var(--ink); outline-offset: 1px; }
+.next { font-weight: 500; }
+.sets2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.setcard { padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+.setcard.a { border-top: 3px solid var(--setA); }
+.setcard.b { border-top: 3px solid var(--setB); }
+.setcard.a h3 { color: var(--setA); }
+.setcard.b h3 { color: var(--setB); }
+.setcard .big { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.setcard .big small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.setcard .cmp { color: var(--muted); font-size: 12.5px; }
+.defs { color: var(--muted); font-size: 12.5px; }
+.sheet { padding: 16px 18px; display: grid; gap: 10px; }
+.misstable { width: 100%; border-collapse: collapse; min-width: 460px; }
+.misstable th, .misstable td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; font-variant-numeric: tabular-nums; }
+.misstable th { color: var(--muted); font-weight: 500; font-size: 13px; }
+.misstable td.c { text-align: center; font-family: var(--font-mono); font-weight: 600; }
+.tag { display: inline-block; font-size: 12px; border-radius: 5px; padding: 0 6px; }
+.tag.a { background: var(--setA-soft); color: var(--setA); }
+.tag.b { background: var(--setB-soft); color: var(--setB); }
+.tag.o { background: var(--blank-soft); color: var(--muted); }
+.scroll-x { overflow-x: auto; }
+.notice { padding: 22px; display: grid; gap: 8px; }
+
+/* chips, cells */
+.qs { display: flex; flex-wrap: wrap; gap: 4px; }
+.q { font-family: var(--font-mono); font-size: 12px; line-height: 1; padding: 4px 5px; border-radius: 5px; display: inline-flex; gap: 3px; align-items: baseline; white-space: nowrap; }
+.q.bad { background: var(--bad-soft); color: var(--bad); border: 1px solid transparent; }
+.q.blank { background: transparent; color: var(--blank); border: 1px dashed var(--blank); }
+.q sub { font-size: 10px; vertical-align: baseline; opacity: .85; }
+.q.hl { outline: 2px solid var(--accent); outline-offset: 1px; }
+.allok { color: var(--ok); font-size: 12.5px; font-weight: 500; }
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 4px; }
+.cell { border-radius: 6px; padding: 3px 0 4px; text-align: center; border: 1px solid var(--line); background: var(--surface); }
+.cell .qn { display: block; font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cell .an { display: block; font-family: var(--font-mono); font-weight: 600; font-size: 14px; line-height: 1.2; }
+.cell .ky { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.cell.ok { background: var(--ok-soft); border-color: transparent; }
+.cell.ok .an { color: var(--ok); }
+.cell.bad { background: var(--bad-soft); border-color: transparent; }
+.cell.bad .an { color: var(--bad); }
+.cell.blank { border-style: dashed; }
+.cell.blank .an { color: var(--blank); }
+.cell.inA { box-shadow: inset 0 3px 0 var(--setA); }
+.cell.inB { box-shadow: inset 0 3px 0 var(--setB); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+.bar { height: 6px; border-radius: 3px; background: var(--blank-soft); overflow: hidden; }
+.bar i { display: block; height: 100%; }
+.bar.a i { background: var(--setA); }
+.bar.b i { background: var(--setB); }
+.bar.big { height: 10px; border-radius: 5px; }
+
+/* teacher */
+.sets { display: flex; flex-wrap: wrap; gap: 8px; }
+.setdef { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; max-width: 520px; }
+.setdef b { margin-right: 6px; }
+.setdef.a b { color: var(--setA); }
+.setdef.b b { color: var(--setB); }
+.setdef span { color: var(--muted); font-size: 13px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+.tile .k { color: var(--muted); font-size: 13px; }
+.tile .v { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.tile .v small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.tile .n { color: var(--muted); font-size: 12.5px; }
+.tile.a { border-top: 3px solid var(--setA); }
+.tile.b { border-top: 3px solid var(--setB); }
+.levels { padding: 12px 14px; overflow-x: auto; }
+.levels table { border-collapse: collapse; width: 100%; min-width: 600px; }
+.levels th, .levels td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.levels th:first-child, .levels td:first-child, .levels th:nth-child(2), .levels td:nth-child(2) { text-align: left; }
+.levels th { color: var(--muted); font-weight: 500; font-size: 13px; }
+.levels tr:last-child td { border-bottom: 0; }
+.cntbar { display: inline-block; height: 10px; border-radius: 3px; background: var(--accent); vertical-align: -1px; margin-left: 8px; opacity: .7; }
+.filters { padding: 14px; display: grid; gap: 12px; background: var(--surface); border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; z-index: 5; }
+@media (min-width: 641px) and (min-height: 760px) { .filters { position: sticky; top: 0; box-shadow: 0 8px 18px -16px rgba(0,0,0,.55); } }
+.frow { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.fgroup { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.flabel { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.search { min-width: 220px; flex: 1 1 220px; max-width: 340px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.chip-toggle { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 11px; cursor: pointer; font-size: 13px; }
+.chip-toggle:hover { border-color: var(--accent); }
+.chip-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.rng { width: 58px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); text-align: center; }
+select.sel { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); max-width: 100%; }
+.check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.status strong { color: var(--ink); }
+.toast { font-weight: 500; }
+.ledger { overflow-x: auto; }
+table.st { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; }
+.st th { background: var(--surface); text-align: left; font-weight: 500; color: var(--muted); font-size: 13px; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.st th.sortable { cursor: pointer; user-select: none; }
+.st th.sortable:hover { color: var(--ink); }
+.st th .arr { display: inline-block; width: 1em; color: var(--accent); }
+.st th.ca { color: var(--setA); }
+.st th.cb { color: var(--setB); }
+.st td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.st tbody tr.main { cursor: pointer; }
+.st tbody tr.main:hover td, .st tbody tr.main.open td { background: var(--hover); }
+.st td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.nm { display: grid; }
+.nm .zh { font-weight: 700; }
+.nm .en { color: var(--muted); font-size: 12px; letter-spacing: .02em; }
+.tot { font-size: 18px; font-weight: 700; }
+.tot small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.breakdown { display: block; color: var(--muted); font-size: 11.5px; white-space: nowrap; }
+.rank { font-size: 16px; font-weight: 700; }
+.tie { display: inline-block; margin-left: 4px; font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-weight: 400; vertical-align: 2px; }
+.score { display: grid; gap: 4px; min-width: 86px; }
+.score .s { font-weight: 700; font-variant-numeric: tabular-nums; font-size: 15px; }
+.score .s small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.st .qs { max-width: 360px; }
+tr.absent td { color: var(--muted); }
+.abs-tag { font-size: 12.5px; border: 1px dashed var(--line); border-radius: 6px; padding: 2px 8px; }
+tr.detail td { background: var(--hover); padding: 12px 10px 16px; }
+.strip-h { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; margin-bottom: 8px; font-size: 12.5px; color: var(--muted); }
+.strip-h strong { color: var(--ink); }
+.qa { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.qcard { padding: 14px; display: grid; gap: 10px; align-content: start; }
+.qcard.a h3 { color: var(--setA); }
+.qcard.b h3 { color: var(--setB); }
+.qcard .note { font-size: 12.5px; color: var(--muted); }
+.qlist { display: grid; gap: 3px; }
+.qrow { display: grid; grid-template-columns: 40px 1fr 52px; gap: 8px; align-items: center; border: 0; background: transparent; padding: 3px 4px; border-radius: 6px; cursor: pointer; text-align: left; }
+.qrow:hover, .qrow.on { background: var(--hover); }
+.qrow.on { outline: 1px solid var(--accent); }
+.qrow .ql { font-family: var(--font-mono); font-size: 12.5px; }
+.qrow .qp { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; font-weight: 600; }
+.stack { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--blank-soft); }
+.stack i { display: block; height: 100%; }
+.stack .s-ok { background: var(--ok); }
+.stack .s-bad { background: var(--bad); }
+.stack .s-blank { background: var(--blank); opacity: .45; }
+.flag { color: var(--bad); font-weight: 600; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 12px; padding: 6px 8px; border-radius: 6px; z-index: 30; max-width: 260px; line-height: 1.45; display: none; }
+.foot { color: var(--muted); font-size: 12.5px; display: grid; gap: 4px; }
+.empty { padding: 28px; text-align: center; color: var(--muted); }
+
+/* preview overlay */
+.overlay { position: fixed; inset: 0; background: rgba(10, 14, 20, .55); z-index: 40; overflow-y: auto; padding: 24px 12px; }
+.overlay .sheetwrap { max-width: 1000px; margin: 0 auto; background: var(--paper); border-radius: 14px; padding: 4px 0 12px; }
+.overlay .ovbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px clamp(16px, 3vw, 32px) 0; flex-wrap: wrap; }
+.overlay .ovbar span { color: var(--muted); font-size: 13px; }
+
+@media (max-width: 640px) {
+  .search { max-width: none; }
+  .metric .v { font-size: 28px; }
+  .lvbadge { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="tip" id="tip" role="tooltip"></div>
+<noscript><p style="padding:24px">此網站需要啟用 JavaScript。</p></noscript>
+
+<!-- Results are encrypted (AES-256-GCM, key from PBKDF2-SHA256). No names, results or passwords are stored in plain text. -->
+<script id="vault" type="application/json">{"v":1,"iter":600000,"date":"2026-11-10","students":{"01":{"s":"ro3PBDNShvNkCqEKD7XLaA==","i":"EzO6wJ00Lgw8BB+B","c":"mLlWxp2J0SOH4YxU2DvC1TuIyXm4xIMQ62jkmx5os2s1TPulFlfB9IIqpzdLWM1Fwwi5rJqbGbXb4rR+pmkuXMYwkNahPT7QLSAMKx81GaDXkz8GQhsuYMU+FvmEGEiccqDM1NaTd4Btw6uq3/C88J9+CwY7mXXV9L5HTkw5SwgrhgG6k5SvRzZ1JItsQzDNoSfx0shJ9EkowJTkmbWX01BIVVIeM4iFaJWVh8sy8uZu1cVMwCclr2UUSgkCvHLMxQXFCZNk8KhnnRdE+Egdvr6K1UjfGa9iSSoEtkjtAZnUxufJOZDu6pQ/ZtJNH2hrYQjWjrpdA/5HiNOLdi3CZLHj63rkmM0MR726wBoOqYNlkg2yA7aKJlwKJYvXc0Wb3Jzj1yja9d2K6tRlWf1P/+jD9Va2YZN45F5LGhgxYADRSahtVxL3IK3iv47Z+igKBowBMHzbejK/5lchjcIpGo77O6uL5TnwCrOB5VyxRgzG7sucvFCvxWgIyLOUe/Vsw4jODn5x+RcAVLaL+n6HmiMqinY5nLXn/kQqJyrpV0KB7p2MBYiqHDsWRfj7os0OvUOud+kpL2opC0pVxAGM1f42JWAwlIV4OXeqGNB6UOh7UxtW55vMHRZCqmGRJEbu8x37aiMqNoJt34NxvZvgXBCYQTVWimKY/6xjK0lmPIt7GpS0tR/jHm7MsTZFQLPdbdXWIruyT3nB"},"02":{"s":"9yjZ0AVNGd+SSeYMTELEWA==","i":"gKasGDHl6WGpT+Gz","c":"sx/PxHatNp0FthO6pH1KQqHqMLzZuzJxlyzDQ/3lN/HtxBQ602ZgJjGxP6LfaX6SrZdhownm8Kmk3nCKGxi7d2xx+vEQRisQ+7LfSMWZ3lNCcFlI3x1OE6t/6y/QvOcQUkU/+OhmPYW96gjT2f3A4R9tiSYcZiJWFjaAhds+N3IoEdFOw374YTU0O5DYPuSJr5vQ0nI1GFVP6nnVpLe5NZCk0vy6wHhvV6O5gyTlVh1r5UwLyb2aSzjYehz1FZ/F/4E4bMYCimKt4BEvuNouEK3iQtEU6TSoOHapAYbxlGTqcMr/wkOK8eg4eC6pj0bV4kWGZFjwOLGWilDD63kOlRKxICQOGckhPHsOcL0Ns29HPcT9j5hqwcRuQLMBVSwZcHEeGUZmugDFxvaSZz9CMRsEeC5LSo6ta2r5bLaBJVyZHfeOJweBC7+SzLNperW3VInCsNaCTBV4Uru8JR3MVy4USPjrqUx57ys6HxDzNHLjWz/tOhdhSGLHgW9IzZ+mzNMrE2rOURjTDXvEF8P95XC1ZwcsL6HQMwbYSuRpLxXWY5zR1qoN2NgC2Y+n61DxldyEGqnC6K9/8FqrYuGtjaiVSjidMfh8HzeiDp7iTJ0yimzPhlIiLh9IgMY1kCjOKQeRMfbdTZ0XbLxomNQ40X1Qb35Ku0wjWeI3xbHU978v3Bsk46yMb2e/5hCghIfnp5QzU8UXQYgyZ00mSo8ndGVh"},"03":{"s":"0rZNp7ANWgWjhcAHLcXC1g==","i":"IMkWi/5W++uZvFnn","c":"KD2gz5m6c5GT46QcThTWZDcCKswnwJ/hXd2pi1QPsszm6W2P/wnm9lE0hyso720M9FGBM8T6xSW7ikuWApegWWOlLvirRVuF3ovOR1VAmLImzRILndPzmTeoYnAPVEDOc5+vASNyug4BBVwsoe3271jmC/TUPgDu2BSZYocVgaJs4dp4dveY0SwxqV7vA7GoWiMfzla10tZ+h1/rzau1F94/7Rr3N2hUfDApBeeaio3L4nseJhPK69gKoeeT8DUz7pyLRVm8OWZpKnv1x1c3xoBbQh+9fakSHVAygMjrQ+OhdC1f3L/KxkFAuWCOQR/DjMo8m23J3PWxKXcuip1QZBFK3QhparRARUXRPxtY4ELz1obxZq1SaSSsAz7jzu9Xphr51cYbHdKKa/XJWYfIYQ/jTDScdx/9mQxz8ID2nbZ5n5j6QBvOjR1l81TCzcJIcGGpwfF+HD0khuBPzpg6OBLj03Y4rYNS6Sf7TKZtN8pZ3ScJNncsqS/xLhmShZ0xfV71WSFEoVo7YYEPSJFacNA3TsH1JBj70yHwhLJebfugYdCXBh9ZcAGQcJevnRWPV3p4uVJgZUm54nIXshp7/N3ez4XKdOLD4VWerJfNXJDO+a5xY17sxvYQgg3K707W5+qqImPMrI5EXE93/6Xm0cdPdrj8rwfUeBQ6BInvw5qQULZl7WdGhzctY7CMhgj9rpU4zIF0VKl2"},"04":{"s":"o18UC9Suz/VuVkoxguJjBw==","i":"uw7oFbp8VZSX/Nob","c":"d/AuF8ee5knP288cAkiDYgrU/BLOpxs7ReyI3ytGfR5CxAftNDh4qifLBIiXbO6IHRoWlfjJkOmvyINllYICE3XdT6QwPkNS4H9AfFvikS0ehblbFqJr8GXubfhRwATJDKQfJfM9qRXt9hwuzNGu9N2XvsZJBxiGRQdh2v62rW39A9hgkl2T3ZledrOINT9I3nYwRwHigNla5m83lPdCEpAnWmyGLD4rK+9X7roSfE5tojvWRNugPOmSA3862vyzcSrs87s3tkYSL+1x31U88hRdvN8NWm9ENkdrv0NVtyKwja25nbMv2Xe4Vaej8wDz6jqEGO0zSt+VnpktU3Z9VOi/OD15jk1sPvkxtH/BWii26MnsoEto+B8yiYeUdkDwcDeYVfXdr6W304uc2+bqxaNThpnFUZbbuIgNHDkdYxgplY9u4DKOcA5A0Ee2tSpg3/eGiJVF4IeWIK0h5PQrw6IhAA0hu41cN0nIJpdMbChL1HGZz77uNCJjTdQoUD1r2AQ0c6ort6CZcg2FHa51GgV83TVKi9jKtMkHaBETwsCWc2ePC6o2A79OaEsTop3yePdjHaVEWc+Iuj9ViJZ31tZNgK3RzAYHMjPx/VF+ukvlyetCOedt1Xndy80dReSS/QlWxaPOkUmF846AACJsldDOQXi1g2gAakxUgQELnOOzmSI6IKeZ+e8P0yulqBrY7c9SaslN+5r3/A=="},"05":{"s":"ux4efbSUE79Pwsep5h+1BA==","i":"7z4LMqzrY9G5LyC3","c":"BzIHSNH6gMvkHtoe+6HmliCRoT1LI6fjSYPt5izWzeYTNahRPMBiZRNobdyxmM9MyZQYh5DFzMzek5UXfberju+aZM7gzDx9a5Yb5kpfsSq8SSI2YioHg8oM10NQ/MOjRDE6KFa06pk3EGemWhvuyq5QQZvx6n2IxE+cNymAppLyQxVOmAK4Jvk6cPnjcAvRkpW0jzy5Y9wB9W287Hq6TMpsmP38TECpKbsIHSC8NeGLeTy++vJ8bXK84Zc68zsMEx9boFpVJL+8MC3LrT+RGaNqVbQ593DOMUAcIhrd5Htpf5qrYVjcnMonk6r06xbr9ZHh7ncq//QBggyj05tT1LvHDzfU2ws1MI3ZIeskjxNkB+1QhdVWkeKD6P+s1AaOgJhHzK9kno6DBxrcF3Ol4hNuadbxwjQWl012M6tDhrhCbSll7+yBOkqG7jXd4V9p8mmbTMot+PczMA+9gMnO8ljaBD5pQFJo2G7/AoYeE52W6/oh67e7kd0uaDVTZMW8TmUytpubL5dxlvD25KPJKjC4fPZJIh2M7UQoCam34nwOkLriUtzOuZFDtPeym4HsnStW1ImBJEMj6PhsI700FWyYEnrpBZJi09qVz1BNXmh3JltZ/JhZtlmno6QAsXZGzUCMSekdf6qK1ulvLZfde+De05b6oNvh6mPPqqsiZNBWIFG0xJPZbutSYmGjXll0sCXVdAKaZm0="},"06":{"s":"N1jhpJSwCuqPsGSe3hrHyA==","i":"USDt/WwxVCt3QaYa","c":"u3DZ2bBcYZaiwSa2o81l/6xP9jRH+wXucFZqp2EWEFC8PEP0DQ/B5ZUnHcfKETDZnSLDKdInP5lfD0DlSVKtaMBj7GhP+IDBcLRSCgcPs6lR3gBHgau2yhaELgcPUtO65NZ9MH0Ue61/W1YucZ65XOkPrM4kUdgEFAwZiuUciCvRnv0455bbw0xtUhxZQsgu5xX6/KQLC0pbxmLNtVpZTrv6yXTbX0ST5CiA9ZeUe63ZqCm6GpXxT6kITUByDrDtDl/VJjJFqvLXVaI6epUpFoCPsXvripDRvW57n0Pof39Od6tIpocurlO+yeQvc5kjujFjnBqYqypMIfxuugAuxIJh5E2kr2x1aGpQZui5zscR89ue6cFnkoHOhS4iaUNADaGBhp8xEDllI4nLRK0stkX0VYBBgvkypYrCZmQ+k0S/7iPEgSX5IBsePW/gkCCWSAKyi+mghb+I8NrCRz+Z1ZZ/fLyCsy0yKMKLSC8ePdX91dmDzzvrNdz1DWvr9YXA//m4OHVXd4s2y+UO8MOWON7lK0XluCMV2d5YEPY3Xm1b/+3sW5uDo5xac9p39fCmOGoTj25+mkdCzBlPI9NT2Zpsi4ULcx97LqLwnBQYqQso+JjvXftdnqXopoZEXV+H+ybyEo8Yk9ilpKEI49RxKAPX9O1a1akrKdGawWRgICqcW4d5KqIpTNDy7hf1FcGqqfGAr9FQZSd/CQ=="},"07":{"s":"eDbOvVWOsVbrmKD8uysmlA==","i":"pUP5CYSlr6uopK54","c":"iLWeLs8iTnf4nw8ykz8I27zXXKeK2rgHsN92oMdg5Rwqni7BPpPkxA0AQMvHfPaifvRAVKELafUp7Q+0L3Kkhya6erOjnLsW84div3iqfn92e2enl6T9eOczJTJdYGqu7syzKf57Nolb+mfByfx2HN9t972WzH+K9h0K2xSjLiXpFuL7XNBMBeWlbHpVoL86qlUgA+eShkFNozn7bU5LqwuWd8/dnb83ZpsifI3FMpQlhmsnxXFiq6naCT2eTuagIfq7BTaCsT8pcvBheL1rcgB8WEABna5ejNodxENjcqxcWsiA1N4PejKDVY/xi+Aajdsy3vuQfutDAqw3hAZUBjvj/7/KpCYhXDhWCZYV60ReRyMdcy3bTqYVaqh1Tuy/pxVIr4i8fRbzVtBDsyBTMUlzN6oLPT6F5iqCNh2tTRGuuvchHYItUzfvQ0Gi45vn3y75FFg0LUXeQb692vpMrteXRr6G00Ff6XtzInjv0xw92MSbEsg2cO0Hl8v1QsolrD8jMfRM+NttYXa70Gsutr49FvOdt1uSdu90nPfN0YPp/R1zToDXHedg5SJ9fexvtmkOatjCvhJojAUHGFTOa0iMEJmigDf7sAbLYIM5Jmu3FdvB4XxcUUQI1Q7ZaJqI/0OktWcH4pI++abpw6/xHLLmbRZkEbD/f5NE9ZFtDEuP9k0EgSNkm51uvK1l2RftD/YyvY57zh+PTQ=="},"08":{"s":"PzrFIu74HsbLRbczi7uuFw==","i":"EoTgB5lJKxSqSwfs","c":"ES0OLIGFqfq5CYlK4wbkJoCc8g0z/TYggwHRGXdIhxyaj1AoxXTtKzwvKyhN0ctItdSEItYsaO/jWTi9dzNcXHp57RRER57ETCNoFLosTx0XuxTXIGRe8GbO5vR9xWHLSSDS4XVEbLk9+RW5AvUix2kIFdLTxPm2wEmmz69hwu8wKimx0T8K0QEYFCJ85zlU4eE781gCpNxESFkTrbqUe9iBqPL4VVjsKcWYRCGxackdORicBnhPtIrSsSbnsooS6XNuIhfk5LBeaMwQYR3IwWeImkR/3rULPQChhf8PhXB/0PItEJxvpR5tmy9kmTeAGsz1K79V8uHdvQXNkP2MSeBjawKm8leetX+Yot5ugrSsjx2hm7Pwi64JDPYkRVbSMnykp5vHgoqhgavhHlNJ9WrRhmNfN9afdKTQ7kHv59drgTKQGQ8cEbZdQdMYiYUG8isghYNlUjAxBRZlhnXygE1OqbsWre8GbKK8otcYB7VQCf8cjpRYllpZHaw3CkVS4OK4B7ktznlbeVjrc9YZrCKVFzj6Bm2rHHyio8a3se9UUJ3uMJTFBmqRdLJuWp4i4714uD1DOsTJE1nZDxvrg8Tgafk+FwMbf9QWojg9jDM89+pFuP4j1le7GeHI/kW8+WrNvzpiWCNCCyhnrVf+fN3k9AP+ByUJxCBgIGB4yYxxeOkjQrasFB8uSFJAQ/RKJ26Zpd+Z7kI="},"09":{"s":"60zbQqurpYFxDw0xjV+36w==","i":"7vLQdrwn9/NhX5Xu","c":"xFKhcVu6Ei8Wf7JK0Or41Q6bhdT0utqTL7Ry5fb2fydOZEXwq8eLMjQRR2nYkpwk2t3jRw9E/zwYJwjcGQ6DFs7pB9TQJ4zzzYMDOSxJDm7moiC0X9HJNzRP5bbibwcu8FOI4Tmc6ozi8fzpxD1+q23csdI6JnlQ7XJ3O3bP+aF6NM8/89exSH0hwpbS0lSXm1vdSigi67TT2sw0FY5pZerjirOewM6T/J8UodLlqlvSXQGzptPKdd0nUIrME6nNngV2Ib1nKWBDtCsKNeoMdpAiAG0crfqM2X4thSYLEU35u43xacp4YRCEQki3Ej1MiLy6IvaaMGf41rBha2FTcRnNn2kxogp62JTPd2hGpHY5yfhLJPI7Ia4iKBHaJOcZN+p2D7B5ackED1Fey73EvnPcBkIZg0XIyE2TM6CX5v1XhmZdskJ1Cbl8HJJrUUadnxr/GXYlJvO1P46suDciYCZ8fY0yQFrOEFmMPHhxXJSk9C2VsZHc0YP1m570XozW0OManLvzbIiciCr6r/10mVejuKSRK8OAvjgX7y09tEZinUvaXyZXKWf+2cPtWsrB08wqlc3D06RhHO5v0xfongLqn4kVPNx4UfaPvBMoWsExmbBDMFVPoUgah/pTnxbg22wynIV1vSund/Mm7b1dYpp6Xm56J9b5ysfKdlI3jI80Z5QUPNh9pk46VCBBAxbVSYbt/Vpy5Q=="},"10":{"s":"UlHs9HkSkHanUMcnS5vBag==","i":"gC7H+6RQX0GtrINu","c":"OhVt1UIk8RoWdQ/xXIGboo7iLJ8Lhw6R1JVJ9Sk+yqSDmHpJ4Ut3WD9s8KziGizJQfYOQZJoj0N/LWzRLzryu6NlVtjcBUR4cw3X1ds6h7eugtRSq/U9+CRabKmTjLHYwRt+kSlthhtuUw3oCIaFpuG1MLoodTgvESd8ZIeOab1lkcU5yVMDKO5lPblGcQ+fBjAUQO4FR2X8dBU+ZoG0+UULlqC6u/TdAESU73IzvknMqca8gTfNUVMJ7zolE3C0nQT9WGyfdI9++Dsgwa1wPtY6TaEb786D+lrr0Q91AdYwLEMZ0pMztUgjUVTqpdzPzKDanC8lTxr9B54cS31xGakQ9CjH5o2IT8CYi5i4nDUo39Y18gfooj+NiK72mR3fUDBBg9olSSGP++wMLob5XVEu+GoDuO6UCHHVOdYaTHrHxkbnMnsWVTUzBnahlJRTZoobUJYS2mU0k894zGDN0aXVm5fMGpWHEGEzZfQVZczXQoibPwZl12b7eiYtEz6zq9/E5ulwl+2PCvlPe2UJsHRum0ezvqR34POvdxhWep3B1JNIumqTfGpig7YqWJhO+2XjESyOl1pTR3BrTR/Pxo6ZwR/IXq1ppOZVKDP4VjtEvNzpKDNw/2ZctBGmHAPGFgcp4qt5ohU6tq8BTcLgySNXLhxYKk8yhVnnqqo/zSQNQgqpDMx/fZPkNgAV7X48TW55RZJHIA=="},"11":{"s":"EwbQFsTqJ42bGp5nl90iMQ==","i":"YJ9oCGt+RgmHQ/hB","c":"iqgyx6hqoXYpMWWQFcUXDi269lnbmeSY8ZJOG9+3609bN2J/kEW9qPq+Wx+mbTd3Ro1FJoFbMY2ZWBW3Sb31ZKnIQAkF7FXZb5zEQGl1oeeFmKRjS+hWY5WzYXzGRV9U4dm4uQgrlhKmXeCaSZ4F3SgQl+TGHLifg/7MCr9bobOV+rpelz2VdDv5Hd2v/BmUZFMPNc9jXjb8Z49QGj1V0DSEvBU302l/Ewpgno3mBuDgjsOBiSgJTOm54FijcCMrvzdIIP9fac5NbzXK9uNydbGat3PA8mpFewPboTqpx9QGk6GI28nq4y2f05FWIStYjem4STsUB3SFtBGrBnM3uBF6HPN0DXcdXkIhI8xJeaqLMDNjArm5zEeaLrGbQQ2+AyU43Ygzbb4cnpo3uKhmeH0zUBSw+UD9/TzcFZAOYm3yZYDr5l2vikGolldvnlZG1Cr0GQuUjI4/4lDEzy1E0twfnIuK00Edc63tq9SgmQCphRTFVrOMRWV24tZQIoPJnVlaZXGByj76pnDutGKnU+AKif2rv3q5IHTTsQhfkW2R9ZIbzHxX38tRl/tCbqCSUDJzCq3NdRL9pWPv3vTE2hcgJZEeA3r7dJznAdlcEce/uIWdKM0/Rj828Q=="},"12":{"s":"XqWqggVeBbPcOUHsXOsf/w==","i":"MSL6ZW+jE0vKiSEc","c":"jpxEOLcPdkRFHbxLpdwNsiwCHzGlBfoOMRTd7nJKHLcJJByvR7xzlcJGcz8nkR2OcVRnGprTaQaVuUDGllQt9hSmwPFoZV1zQvgCnjq5mFuCO88sTs962ATY6XMFvOogwscJuS3MyJFwdD4HzyVNqupEbtETJn4WkyGNhw1VHw9ddyvLqjV74bBd5P91ChchELOBUnFH/UtCRIP8hnRplufOV/w2Up6nZhUvmD2lGIWhJYTU9x3sMmVH6kQBOQeSdkFgY59Xxhabd6sgSQy6MVo31dvrdObjpcDqzZA2hfthG29AfxvnLRLFtmyTCwijxDQgyDL2m/KseVKATO4jqQbmwE8fw9MkZsnA6URFPVxQDLH9x5gQ3PEWTtFmq+NOqna5LHgPcyg/eR54cx18D6TurMx5NMY8rWzbnuw+jEEmNgFB6uaewG0RzM4ddNdgVZpE75sqWJgfdF1y8HQUaGrLbQTHhwiS34uwCS/ZvNculCQ+O2wHMFRbtqw9TU9SoWB6JwWUGzgX/YtDFwdZJwofUaYZ4UVptULjC63Q2vMWOeQ0TyRRbTndyyYqlLW9yGBULHVxhhHa/Yd1Q/A2cQRQm7ElzEESo0BVcukp8XB5qut8HD8pHPX0uNQPP4mHJ/IYFaTecznJbo6TjkmW7yZVH91XXv3/HeCe0KY7wnp3ilNbowMGBht2qNC0QyY5OvAb6vDe/Xt1vw=="},"13":{"s":"VP60AISh9RXYjVezf0GXxQ==","i":"CmBSuttXf8En7hjS","c":"jv/FbkP0ubnbk6fC7WGtvhu15kyruolga6Uk3oxRSDZ4AsAm5etjij8CQlWlH2wLlKmT31l3lBeBvi+bIdtNJfug4CVhqpYiwxSPIfl1uIMjzzA2+H+CMTyILg8s/WLWbvoH7ZOXJhMkWXvRSgqlPo/M7jQOcA5N6hdbf1hHNlp11hWYAjhC1OK+jwr0EfSlHqJjKRzgarWQ7qlEkJ+OYdyR4Vf1PQ8DaUuK/huBXZgd6UNXzjIl1ROui7H2f7j23M61P2KLtQFQ1EbLHneNbdZf9BgCOnz3qCiCFp4huTle+qvW9OXjZCJ+riotYQZVtbdbIrAp8nDRSNP+h67mZltZo5mzKaPBuoPGs+iaIXM+4NqEEuLpx+K/EiTcXvJrZcsd6S75R8cUoVUegXhdr1MyftybTMiYkiHvPWfCxbSvrm+nYWmTIc+YXdAVCwqox0aCIbYiK6YzKfAJgIas3l6f6Q8piXeVmliWHEy/fsuFKdvjgWFyB0nI3+mIz6VQx5TSZ+nQn58XgZmDgaUPEgCllPYPF3hifTuudVyLSCYJSDuyEJS3Cl+gYM4W4OV7f6zf/pZhETCLHHyzssUgLT54i5QBw2/k/iaDO/VkiYJ089yIVOHHPDPHG5m0OFsB/7Lp9zShsru91FSvJMs0d/WG2ewz3HfbvnlUf7tlAZVXYhJ/V7oEdo7yFUCJi44+FOLsFNI9NymH"},"14":{"s":"i1OuObBxrh04R8BHX+vudw==","i":"xtbdwo3qogtx5yoO","c":"08ApG1Nr9ZGnYp5l20XKfcuKM9OLu96xEcZ+T2RNyObZucf6ammggF5Fvk2Oi13yunHzA66tuay4HN6AUO1hBQqPLE/qETGceb87K+3anHuhflyZ47hJuXrTCl2Ae4NI/troUoCMwY7KE1UQsaacPtIwcw09sPorqzC0n36bSv1EZXj3tkFsMahWHdsGa+bkLawrxaLdTqMF3oewLtVufNzKpdoYceqtcDJ3oIK5MMGiSKj8B2umVAz3vMV6Znhn5VE7ge2KCL7EV9nm9KT21kHWJk20S6DKj41nxhNvq6m0I5Y+1TNBexEr81vPKScdAc5r2lDV4hg5asvYr1kbNrcldMs+hNbQyD57ciXAIkkUil4W0kOeaaclHI2UQ5BXTmvAOynKtYWK1HrIQyiGXB9fk84QFxZw0ZgpQpurqwIpIII9UdlH2DQ/2CSxlkExO1a38cxQb43Vf8j13/PXlMs/ZET3iaELyDLudXfzt+zZEm7rJzwCLnzbbxCJHWyKHRmIymg10tgNkL9g6DPgW+tODey+51fEyhcP6HAKfe2beIxr4QPVXCt6mSe6gZTV9tVydQHjof7h9XyLRU4gYohkMQBbs54biUUN/isrpUh2gkaHAXekE/D4jQhxUhJPb9gr0Lwtfgch+vgx3284z41fIXgFGgFqAOFrB7Vb8al4RV8fzi1DJ92AFbsVmAxKJVlBczjlQw4Vk3k="},"15":{"s":"98rJFvjZVL1X+u7cIs3Xcw==","i":"ivoF/Rs7k+/EMFhm","c":"rbTQ9eL9GLVOBJYNnS6Sn66eVb5nudb9GhcYwLgvuX+3X15oSErUO7av3X+VOwGvNxgFaHOku6AiXfatQSdwL8QC0x/8AF+6Qe6JmooZ6+yGPfKM/2nnGnHDH6MmHqLm0+Sr8qdRidJUIbpNaLyH3fQgTD9lrgffTbX7jhPKH0q7jV38Qi5oakNm2IW6WqyfRvHDoJLRutm+BRxNqiKEb21CjAcIDVNm+DdHuTbPRXD5iiePJmqk1EkkuDykezApTdJshm9Hv7Fics69EQEtlVsjmCt/8o08hRxCB7lLRAWi9Fh7HMq6S3SV7Iw/a7dr5d5KOhA3dip81nzX9wDeXbN3Oh3UPA4NzzUAXAHP4TJH3P9awZ/GrT9Mgyo10oMjZOOnFITSYpv1fn0/SUz4okK794qFkoCXy7dRXLTQ+xRKlHRs92rJMgjKkJaFp8/2p+nSDLBPvd7mxvM9lnfaazeeHC6l66+QmQ+UFrAwsfMNKSdV4O3CKxMOtNusYdQkJuLYiiaFSaQ7KbjGoEgrOAB5l6JxqKsout1dfcvjm1Macr9zZwlv6EkT80mAF/EZADMaTY3NaVh1xNVvMn84FkwsxovY94ZwZfNhE0lG+mVebwqq7AB6p3dQZkpr5nU3TUeVSyBvm9pFQKjrhKe6M9mqArUEzdOs412MmTo1MtfAs5PCTIVcD02FHIQzdWYbGz9MPJ2K9T2r"},"16":{"s":"1dUz32HDlYxuuTTDXh3l2Q==","i":"IB/jFKec4Hmu2+uE","c":"7q8K1KbyQVgAHL2Yd2YME/lsvpXHlB3tlINN/yu6esytsi+t09gUaZF3zJ2v1kfl/r1NCleUuLhcfgkwKuIOwAExkskPiLhIevI8YKKZfBPB0rsYJNyeSyKE1RmVJht5kPX1KqyKFbyeFKMjogndiLdEMiRwaVPBlx8/7+1RCtlqUN6iEY7u8hqX+0QRsEn3fBz2O7wtNoWW/jocIZfbml44Uzt7NMreSMYuO8ltuv6wzw1UUINi9ITSu/X7NoF1l7+ANdUj5tliey37xMAJ6I8uVmhGKa8rHZciUcZeaKJDiaiwhyWPm8wiUaes88gIt+J4sv1VHYvmJGDou5AryymKdU4kQXuuvWOt/8HezV0IdVweCUadnbmfhHiBFASIocz19Q47zqSdlmVg+lbUAGYSWbkjWzrbJBjft74Z4+/6AZ3rGhbC9K24J4LzhSnpRFpJHlaO//SoqvUpS9ONRzdv6NcmO0xhaQxtHUmG6B9tXFjTuCOUcVhJCh4eHQ4opr1nUXY+lMFnh9uUgoSbqtEVYo4gjBTI+HqCxeMAqaEcNPR0yedjzc53fptbuKUF+/+C0/6xO5+VovnQ7yiZ9l/Iq17UQr5EmSboPbZK8sj2anhYpNfI4CfmxZfJ"},"17":{"s":"1hvAMBAhRyH0gQ9BN+rM3w==","i":"ackYsOeeijoq6XoD","c":"Sh+WtHAn8zAZR0zKKLHHPq5ZWdaCUhEwixL0ZlTfa2EV1ZpDSDz3Furn/xttPjOKCbL0You6PrqAbIXeJhDcEOdhmEoOM5iP8J5jlY2l2N+d8puEHjAoE40ql/S67vlFu4Xuemya8tXi0xJXNY3tTq9QkRwecWbT2zdoa/SX87U4Xus/WbHQId4L/86l+gDPqPzFEaTpdWx25TIq0SmVXG3pIwWetI0c0O9DDQUif+EpArmLSlXrHLk9tSJ9Osza5T6b+Ut1PYkIvV++RzgjQQup4pE8dkvAqcswsf2m6R8bibYnEHz4nBFRiGkbM7GVwuQVdeUFwqOIRvTB3i9H+PX7bK8rIdP11lVU9R59TskmilJLmTQlcLxXSv1lELWq4/QDurEfaE2xY9ykEZ8n07gbQmfhb8ZQ0aJZYCM86fvjn9Eq5KwGgxMjEtpZ76QRaJ5MUdvYBAi553UaHeJ15P9f0EobQyO/TWrhimE3FG3thghyMNOaZzGbCs/MMoVYSpkTWomU4rtNxhNh+45zEDPeuT1q9vrKxGuMGXqyh6HiIbByh3tgs9x8VntFOE7xVWxEm9P+nfC1ANUMlFrbRNTEnmHDsudA1xO0eB1f3ARhfQi44S5luhshR2yvS8ILd/Gloo66dYQV6N8jTSpOpcX3FD5Ea2C7tTQwvFhJGhtXXc1CgWUQaGuN6M9aUJbYbtr5IVPjfiG7u2G6"},"18":{"s":"+63+jkVIHdzZJNR+ZR7Drw==","i":"5axjWuAdr5QzWi3s","c":"p839C5zQ7Vg3WUFFmYE5DO786CsREeD3ky0eHSXN+qS2tLh9/n+NumLtrfp39HScltONskW1+JHFXQ2rj32shqmTcL1bPJ0PAOWz0ld/UWgCbmXO/3OiyXJd7m5kbcGn/QMJKhhsMhJCR4kEJUUAxvWkycxtQTk8fwyC2SkVNiR+fHDOeXMVm4FyRnO67oSzBZUj9AQjKKT+TZafQ5ceyyQYZdFgSvYIfxy7yCWd1On9ZTCZn2vtz2AEsh/1uMR7/oVYolOIXtePKFOWME78TeNEJCNA61dBytOxz/37n+ZbuM/FVxuxBbcOt76vwu/KNduYWEfRcPmYvuH4pMB9G3HvHFeU2u/r8FxuoeA6YtCMs2155a6yW5IzknvtXfNBVkbYIFVne2FGsJJaVRrdawQyoaDCASFN/T73F2HcLmS+Kvw4iWN1snh0nYnj2xmhEPgMRS/twHyjfzWhh3MgyOIjOsjAhBcXTe2Ti7ZZ75jmfrgscdnHh8L6/6RkmV5zd+zWUNhdSLofaqZb0keRztg/pRCgKy4SQiBACrEtXbHZwCicSgTIGo5dmSwnKuu1SOmbLKR2T8yajXHPlhqJp+0RyAAUHYKkZ8DjtPFICpflmVOTqiwQsjuh+gECaS+ZilD1rvjjYI+WG3kQcw5c+MwfXFt74TklFVTi4vGLCz/LuCZCgQfjnc8fLKIIwExtb8opIXrDZd3w2lrtTBy7"},"19":{"s":"OP6xPGScDxG/3/DhWKOmLQ==","i":"QR4mFeoYCy40Ipu8","c":"sdf2khD/MVabh1EJMCsLoAqY2pExiybWs6XHxxhdwxJhWCbQeXrJzc1RzUE2qMm/J0BpTDpyKBsbsfmEBuyrySWpMQyJ5nXKCEqqTu5yUNnPUaR2pa5fIRS9bAYNSNgRgaNKTrmv9oqcImvrMvg1ThwIipc+B+gN0j3jArnQOSXw1L3fyWoKhWGm9QosjKSsU8Do0ycVROO/TJiGD1DXKJ4Kre60XJLbyxBB1vUI5PAzNr/lr9qA6vrOVyNRGKwaQCwKjUEj0myVCNDaxrsQwnqn1PorPwy4uE8qMzZxYYV3l6H8TKKREw/nODaczZkupyiCa2vemWIWjOQ6JEZRWkScKv6UEYmpbdHqZFGTS5yKAqZOhqhOmzjaqj8pF6x6ZC2ecWfVQ0TQ/Fe++VZF41H8cqcpJZBnsJWjRCiRRsRTj+MBGO5WxV/obVqo2ZhBmdgZn9ZV7uQf+Rpz/odk0tvaNiRV6ltx/2o3E22B52kbPnlwOLT093zIcwneREGTy0coHiKI7b0zaMJQ2F+aHdqIaISx3ZMdavx6y6J2iHDCqDTBO8EZK/v7OcSDWVaGcvePyVJtUEktJXdq8b/AxaORL7ck4qx8yH8FBkmrrPmOFRL1UCoYbWgNFOupvynNomj9fAdPu212yKCwzGl3GPRCAci7j+Z15skUnKSBu4WcgYM3RSRE1U5DNpsDfmKBxDE3+CodBASzfpU="},"20":{"s":"O7tv2vAyAdDFkunZwTswfQ==","i":"hxTZp/8ZK+k/Exqr","c":"bnxk0A18RnilA9FWaU2m6IUU+Vs+xA5d4fpGAkfIva1hc5voWeB4b+w44q09iPauwKdDofPu1PHSmTyb92npGHVS97OF6rno2Htt0P13ZvjUuKrBcKXJieYFpNxi8Nbo7nPX/EnvuEn7N+3zeB9VEcarnuomrxn1ycvoXpFqiU+whh8UXOk4CDBbUOflNnoXjYi6ZkzoFuDbXtsI47SKaVldjeSuGyJMS6cRDj8td4HK3HuQo6J8FA9CRyZ1hljw3sg1eQ67P9hQctzvNmN2u267eA7loCal6v5bjXaxNKuxFw89XV3J3y9FiaCcenOsOI5Ci1HPyIrwFxqPaJp39qCALJ9DjPF5sShbI+GSFvTt4XxsuMZIVVlHFMzcxuRdoPeLi5MwthMHTDyxKwRSa5IVnyy2cIH/7XINUUhA0q3q53QYZPGUigSqQwv5I3P/T7Q6O5hlP6H6Aj1AK8pVMTdDXIB+gmPB9mchGYeJnpvj8MBSh/P3rw9dcVRSqfWp86FY/7HtHIQX56uyj9rnAcZ6TfRz2Gl5CZm0tNzKMMIkqVgVN59SAQUZSMRpzAAGUrV5sbOfpKcPjgJ/Z/tG8kF90fgmvlOMFD8ipWyKyleWq/eYr0JusQbspccb3er21DVfWPxMsI0Ns4QSS4z6GpItIZm0HuZAKU1gQ+g58AQ5HugJym9mU32nfmioqHS1LBjJ6UigjIQuyt2/"},"21":{"s":"A6PYofQJeZ9fNqTALkNTYQ==","i":"7eCb6A26rc5vdyjP","c":"LQN7zI5MmA8JFDkx1TXgyYfuY5DrX5ivn1AiN+WTzscs+HhiFuej6LTPwu8JyFLg2BX34U0GLeqNPVoWPk1vot5nWuU9lE/AuS7xNMFJXjnWDFc7iTWFLV49G6vM94KNjmEB0xblIo8zi47AVt0y3I9S9/PQRu47fICeISrCFsnaaMYNT+vQua0pifu/oCRm4fEJnstFZ8BB1bf0vc2p3LZS+huKSDj52DDzPkq9T25GiLeGNWTbUpqsSOlCwaMQPr94/MIHGRKmMsORYlGStDKoYpNI+oQDwi813kK0tQXGcLk3Z+cHexKMxGgFX7PPF9I8pIM0XWAP4PSp9P0gLymcdsH+e/UJevZKFydnwrwvmxNHFEVSVVrL0MAq9BNRV6nkDsOFZLjANNioInyjmjW3lzzSo8e+2vZHTdAGmDe3/wA5QXEUQUkrqD/tfRw0fJmMsZRi/MXqVL58Fb+3SxELVU98dFUh/eHIt1itg/5jg8ohMspiXSfsVJ44pn9q/LIpuPYpW6p26aDikCLgExSw2SxcUWCe7GUbLh3OzxGGXjp9yQFsMyVVDTtx0PwYXaaUi0junGgxQS5Z5D+JM3iSEPgA/LfficAlKckRo0mTdS72jXn5TNOni0cJb0Z9F/Ti63hIKmLnyM579pIiZPf1cvYquaMEdui/quLuUc7Lh8j4OKNO/pxhCPrgkZSlejy/Cz8x9H6z"},"22":{"s":"cLE+BpWCAwo2zounX7uzdg==","i":"VzfUtzSxPgNy1CLW","c":"DzSEtXKNugNZvKys8tc2j8TRrNWWz01nQyuIevJU7kJYCaZWil5AlLLNbK7qzG8w25EjFs2NUppDRC3H4oE5jzNg+PSsQShpR1ezJrRUKHcF/Yy1+7cF4xUBCvDnKR/LjmMThPMHE1QlNSzM3I4cJc+koDz9EcdFFjoZTmcRhuL1xWrwsq6L5pglOesV/VR9rZOArEie9JQz7CNHYo0M2VgrV+P/1z6FGvq5I7k0duZPcNwDz+npfQiB1nUSqNLM0Vzo8y1oDunSTuijsn7lyYmQ6XFLvlx7c+Bh0OOVLjPFQCfDAkOOSfdocM15DorL8b//3dZEhDJ9qBQxfAnUENaMoif7dzDyiXzZBxR0jTP5fbbc8+ZhvHKxvzC+e84i5rZjSCqSmvB+jHXDxqO0s1auFtJgm/jDPn9Y5NmOB5lZJm6zYmjPDbX8lKaJmlmHCCUN3HOa4tMsRFCcGa46qLPGxxW5aEntTEqZG8hwHo3cN2HJ7il9bZ+7/PIeut/KfkMg37USmCMSxbaWnsdmLzHFOG05dbz7Nk/cT+bdAerDtf8O2W3jHPxXC2+HM8EuaxvLHPvphaQLtJoYypKvC90ebFoqIvryPolGwpaMHBeWCPG7Bv5r3ZWKtEUqA1VTvSFrdPGufFcxqzwrP3/oYDLZGjchBFANB916tMP2M6NEP/DQ6m7sC7h9QoZsjYeRpR30XTGfU5uq"},"23":{"s":"E0r8mXxwmhM5LXVO3hNsaQ==","i":"Pnrkdsw1BSFV517t","c":"eNgWqXF4nKrKQKeiTrVSMGVxLvMWCg7DveDfkCvz8hqyFu0sBieTUZY1b0or9pExDTUxo4WN0mC4lKdocC3/pIFWegX5fEBizv38fqiLIgckyxl6dv7TkVkk8uuybQIxxiTXoISGw1dGNYQl8M0+wAuOL4vVvzXh2k/nURKisAcZ+q38Nv8D3Xb9qBnZHSiBc1hern18cMjfUQFuscWDmUcd2DNDqN4TVyTF4qwisxx1lMlgdfWNgKvi8QNgF8gvBW6bQ0AQIhi2M33Ymz99Pa25YQHJNZFX5ZMAa1svWvkQbI3NXSBmru4A3Qw39E5XW5MPdCkXHl7pbs9h7SAvciCP26vqK36Hg1OYKsU6Jv5ut72Gfng44N6j0/dg95t+PnXMOK0AX50gv8msua3b0goh8twS1fX5QGtNAr9/xxPqsjCehMXhcFBqgXKsL/qq5lvI24MEN+tn1ykd9/WAPzGfiHIgpO3vCTs/roaRpD7PPrlYZ/4Reg0EcDwGes1cJhGghmgjADuahcQBCUUD5NuDL+HnTw8/SW0Uy67wV4aDRRydkm4bbvNtpDPeV2IXyQ3+Ldik+3HZy8oDsbx4rzWcRLKgt/FKF/d6xPgTaiNb9aUKMjgPVRTyWRMHMnaUrOEgN2UbCd0+9XenPmvWnPVaYRG/vvhtwwRNLQ/XeYwf0hCmka4iHi11zvcqNhjMjZb3mVpeDMI="},"24":{"s":"Q35cIocknZ2VgWlUsuLnUw==","i":"Zs46GcskaVvfkijk","c":"OhgzkjWE21zscxgyDkMR4QM7t+K86q4SiInDOP2pvbE8EuePRTGCqES3XGxOavMWgSRRUMWyP0sVZ2nCe/iJKkU8hthDyVM3vhBszeNb09C/mFgncA0rLkgI/vFDgbaK0tk0FsnZhDKg02vmi1tC/DiKZ72kstxm0rHQ+DoIPUHo91S1A4z2Lc5vEuebQJvQFpYjtDr9TjHTjkVifgZF9YNhmSZD7hW4/KHKp2BfCSC36Wt0JH+QMjhhlTH30u+6Til22uypcPZ/PF5sD9Dmcqt10Ea6C+NC+m49AaK1Bly0FNAIjmD96Agfj5brW87QFyn/H/nyNjbl66VfAO4IHJA6ui/jqnYmfJSAPFYeDTjdWnirIIOD83/Lqg/0tV6ZE1aHTmm88SRK7kUUz1ReCVMi4pKz6WXq/Z901XvpbaVQ4JuI6IjGVzgiKH58TOEgdhtzGJY2eEiMjDvyzfVYUc3Ey+DWz402QG9ZWfOwJ6XPjlLZH6ujH4nAZ5i1Q0uqhVFCHnKbaL96pCVBGLjXPhUz6LY/hsQAT8c2Z+uX3Ui/R5Y+K4TOjx/tERiOJN44k0bZWuSJpwAS0VMXQHP5x+MyxMn1kt5S0dChURQmXMBRXnwRpyOmNaT5Ax2d67/5sh5snuy7C88cPIPF5iUmZnlhqNIGV3US9lYzindOCqABzghTy7IIwUYrpaL77C+7/5cEx/GlEt1KWQ=="},"25":{"s":"wLodKDbHMXABJ8Vpa3JwXw==","i":"UUBds/krhVfzP8UP","c":"p5bOqMNFo/fpN0SISA5H6uHS5ND7vt1Bg0q4eDbQkjXOTbVLkEgC6iFkPr4KDCyyry6KYjpi8sKk8gN6boGRsZp2yqRztpb8iU7UnaD/OotkuGPsHLFn2cYgf8jamcd65SJ+tMpPk5l9HgD4z2+/ONY2CVjfsC+mgpCulBuvpXlrSuNpkTS8tahEEZhkj0bCzqjkS0JorjDrkk9aOyYtvwHRmM1FdKwN0iQhNm6x6bs28uaVEXd/3DDHM3JKa81NUu6lVmGvplhxp3gtAVz3wvq+p/uhPVD/XOdBZdD57rj1WV1hL+cYj5EDC2nSlxHMVr7+oLnaqE1HPJaPDIBu7l4AHwMZnVrXR3kogwThFKQe/1i3PsQcvzNh2x/oKcNFa7t5r/0BqfQ9Hh3dwATi8el7Xiulsxo28oxYUMjpc7ZxxmY1vw/oajXPQTHaX6OA85NoFtSitZrmNB/BVTmCqVpcLaE+y8wW6RCCSd4vcFJNiJdx9GAQ+5J2B4ACk33TdRFl7lPZsdSRN2/BFsmadgqXFaX20rwzBGs42HjOCiYlIWXHUlzq8q8VAMASpAAb4UAUveBMkU+11vg7kpZ3VattMclg32hy7TB1PA9UlOqaDySrsLcRKiaLyTBZuZxSPZlxa/HCuFXtj5rr3PYxFGhKZyhwZRrTm9IbzZ58y7V0mfFvA/GY7AT7aFlpEK1OHcCYMarBjda1j476DA=="},"26":{"s":"ZHNN1Qs5rhX0nv4MmLz4kQ==","i":"OyLzOk4RDmS3WGPE","c":"Vm1Bvn5AxCIAPKkbtDImcU2Hq+BQgTtayjvJKn8FB8qMcKfmZ8cQIlp6fVT2n39QL7XqITZjQeNbs8HeNcOJIH+JNDmyid3U9JXrhSdTGF5WOIXumMpk045IDY8KAQg5RAev1HH5Qo6zelaRlpgCcYoIDm/XFPe1UDvgBa+Sd6vUbnKUFSH9MOomwbpk1cFFWCwZIJ8G//Vlvfe/zJo7Vv746WzGolQcPn6uC7JnHnWihPmQ64llZJOJOummFyh5WP0JnO6UsvuLALtvBxWsfsZMCmn1joJ1cHIJNMDU/1UqqISdY9rgmZhNxpfmfc8HqdUv6q97s7k1iPADG4t8Fx54oZceY7J9Svu+mttBlPYNyalHcb9CCY3NZgStxglSrNO8uKslZ/fL7elF5RjqKmpe9GfoPFP7ZTb7I0XgnPv7QYTyz6I/yZCssihIvmU6wA8lixjMgVBZsvWDPd6eMqBwk6B9hoGyXdnsOqr+HXMeAzcxiFme37M3ljKTMrx4SfDsIai+Dn38XG6O3cJMu1Dbbn28npavXb6w9+Ue3yczfJ9G6qUIIKivCYtLrcnUKx8JWIpM1m1bjAMcX/eaXdquO46YkafC5cRQiV6xaEg+/OdeaVSig9E1Rn1TrJck4Iv8ZS50sEFGZw64+BrfkMFwKTTpr33Lzo7o6m8LyNHodI/8F9Ss942drzfqbPLDjsB/VcYCJM/Lem4X"},"27":{"s":"kie7otb95s/dqSXH5JNdkw==","i":"B186sfWP2LOthJjS","c":"XX16gDztmfF5ZvX1sRbl0tdX6HStoqlVIWvkmk9ag/Ei5f6lm5+gS+T4lcE9Op7L/6TjMlzDAvpCegyU/44VSFMMORo7Y+0twFCzJXUxngKlMOgby4DuQbc8OU6vmfxD92XQBMIBB0deuPm4lCv3zCGBwidxQSk5AAg3dFgm2tgiGeWgMGnbgrmgnsBaHrWKfTWgm7IzdR9Q3DQgPL8nhtkunH84mJzdKyMLuEGPFKHKGoTw8cnXvytbfKrU09AaCmUiia+GFSRyTZruUfFZlJqNFt8ga1vWe7qmp6Nz/a/1eyjI9yCZSb8hyodE34I4Re/6egaEPHm230pLhISFKGIlmbpTXmdhuE/v5SqYz/dJSWigPHPFioi3lL0xqD5B2Zb+6/84e9EmJbNOe6xkyZbjWBl+LcOsWB59/IZNBOJdgnETw5sE8p8IY6ku7E445t/eeGEKzUbQAczstp3oklIHMshhBSHqmCT3xLSpotCR1olAZHouT+g313HjcI0z1M/eAzBeHkSKjUtRnmrJkvrdHzeoLS0Z66/reJuE/ickSAGkel3JToNVbrhYJrHH9Mgw2lkJAuePyJs2y6aiZKyy2zKRj0Ms4EiQAxwJwSot0WC/JdSyMKIq+F9ZNsfcqv/C04gUGX72VH5h8GKFT94Pr8jI3GkJsyXBi4dUlAKvhyueVFArvr5gQfbJv+LTRIZdlylbPnyWdfk="},"28":{"s":"Tz1kGNEsTg1D4rUiOI6PTg==","i":"08JN6Y37jLX+rq+Q","c":"eLm/EcbMDoy1ABGshMMGIAb6vqEUTujXVA9wQfuqRzguu/kx3B4Ga5DuXX4mnUD2N6L/6NndAa8dX6Jr5SdKjp6QqSB+kSBOhJ4NzyvN9uIDgocZEPHhPv1cWWP7wF6I8XAf7oEFzatO4d1LxuiaL6Edv/5lduoZD4SKSeFS/DHsSPj0L8p/7w9EnwRvGrLgTXLTdCzhVTttrDnaSX7Cekgnvq5oO+9KkctHckKM4Jm1uZHZZci/uUB/mPAqDFQo3jvCMfgrQlz+I4y8mExeCsIp7b53XYxDcL8LtuajqV0gC2PqBX2YIkpTu2MnO4vox4UBU3k8AiJnQFnN/HqRMvUd4P75tCxOK5YjZA9PPYoFQcGuTgK3sYFJHPBnzEL6rlQxVJfAmRsvCU8XDIpqcCkNnp3hgRcv5spI/s9GQl/Pv1dspH9fDES7arpeZgiY824WtSG4H5goLk0TsHl9WrdAEAMdolbg9vxNjWQQUYZ12+UeEdxrQRGcT9ASx6cGF3Nvr+SRWWCueIkYbk9DQyyLBtR9Py/c1URxLcw6MlcqYCwCEAXtE1+VsI/KE7F4t3vSxlI6JTQuZlicfwBUEMCQh/aoQzofVfqOOIeSAkLjedhwkP2iTYd9F9Fs58t8qc6utL+CisKwBK+9MnIk1unSaIn4X6oQz/03uf4ZyD/Gc+drMnfJfLmfJSPzosrfmNTp6KZxg9lB"},"29":{"s":"oOviLe8dICF06DtQ/Ro6AA==","i":"zPxwG95FsCImn+v8","c":"WmGy7QQ7XTahYkZEZyXTF5G5eR50txEvhuaRwA+xn4nDXHGuF0CxkNZ5O6FO79s/7Od1Zh1h+bXWlKdKgynqKsuVaCgX8/6b3wStbPEOWd4VahGDUiHsprzYZJJ61eeyQndOuNFbggOUxGsSOQQxWHlnRMNfZ8lBNDdF4xi22HKlWCe19KFL+XWhnuSCh84D2Kii71RwV7K1t+NozQvh0j9koL5M1DsJu9wkcarH0ot6bB0Kdb147aytSFUee7XBrGiWf5bVcaMEvcrk/Hv+Q0PMTw3F9U87OU2x6+taLRr4LUC5WjQ1UW7qcT8BORVKelwqYH3SFVpMCGyaW3ugxBy118t1SeSrOe+aT2cMnZlrRbBE5Z6caHvlGate6kqvyYPjCnOpXHnhI5qs0HcfKAn+iE5sk/E0wabAkNrFnBpA34aRkTPUmCfACCzlSJcqBPHERAPmykasJ+xE82o84phgnVYrii8+OLLEae7qjhcc4qg2HLyLZ8pvJF8VpxziKu3AFuzC3wqGndixlQcdYZk6e4kp6e2wVFwpi4tkmwGruxRacmNiKyj9+xmPqL/LDBezdblMq7zi8tKeJDTxpv0CM+RLuIAzHE1pjUoW7Y6tf1F73KbBMxWECGRrNxkSoCXZ4H4EHVTRDnEbRr3iZgDVeZgvyGtjeD0thVdtmdae9zewwE+cDGDZbSqXY5yoRtN+Jr3RM4LQ"}},"teacher":{"s":"fPaOJcpPp+BOcATIK6ToBw==","i":"o9+u+U61LbihK7XH","c":"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"}}</script>
+<script>
+(function () {
+  "use strict";
+  const VAULT = JSON.parse(document.getElementById("vault").textContent);
+  const app = document.getElementById("app");
+  const tip = document.getElementById("tip");
+  const TITLE = "6A Maths DSE 2020 · MC 成績";
+  // Level cut-offs on total correct answers (out of 45)
+  const LEVELS = [
+    { id: "<2",  label: "未達 Level 2", short: "未達 L2", min: 0,  max: 14, i: 0 },
+    { id: "2",   label: "Level 2",   short: "L2",   min: 15, max: 19, i: 1 },
+    { id: "3",   label: "Level 3",   short: "L3",   min: 20, max: 29, i: 2 },
+    { id: "4",   label: "Level 4",   short: "L4",   min: 30, max: 37, i: 3 },
+    { id: "5",   label: "Level 5",   short: "L5",   min: 38, max: 39, i: 4 },
+    { id: "5*",  label: "Level 5*",  short: "L5*",  min: 40, max: 43, i: 5 },
+    { id: "5**", label: "Level 5**", short: "L5**", min: 44, max: 45, i: 6 }
+  ];
+  const levelOf = t => LEVELS.find(l => t >= l.min && t <= l.max);
+  const pad = n => String(n).padStart(2, "0");
+  const pct = (a, b) => b ? a / b * 100 : 0;
+  const fmt1 = x => (Math.round(x * 10) / 10).toFixed(1);
+  const avg = arr => arr.reduce((a, b) => a + b, 0) / (arr.length || 1);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined && text !== null) e.textContent = text; return e; };
+
+  // ---------- crypto ----------
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function openBox(box, password, aad) {
+    if (!window.crypto || !crypto.subtle) throw new Error("nocrypto");
+    const enc = new TextEncoder();
+    const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+    const key = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: b64(box.s), iterations: VAULT.iter }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(box.i), additionalData: enc.encode(aad) }, key, b64(box.c));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  // ---------- scoring ----------
+  function score(ansStr, D) {
+    if (!ansStr) return null;
+    const KEY = D.key;
+    const ans = ansStr.split("").map(c => c === "_" ? "" : c);
+    const st = ans.map((a, i) => a === KEY[i] ? "ok" : (a === "" ? "blank" : "bad"));
+    const o = { ans, st };
+    o.total = st.filter(x => x === "ok").length;
+    o.wrongN = st.filter(x => x === "bad").length;
+    o.blankN = st.filter(x => x === "blank").length;
+    const miss = list => list.filter(q => st[q - 1] !== "ok").map(q => ({ q, a: ans[q - 1], s: st[q - 1] }));
+    o.aC = D.setA.filter(q => st[q - 1] === "ok").length;
+    o.bC = D.setB.filter(q => st[q - 1] === "ok").length;
+    o.aW = miss(D.setA); o.bW = miss(D.setB);
+    o.level = levelOf(o.total);
+    return o;
+  }
+  function ranges(qs) {
+    const out = []; let i = 0;
+    while (i < qs.length) {
+      let j = i;
+      while (j + 1 < qs.length && qs[j + 1] === qs[j] + 1) j++;
+      out.push(j - i >= 2 ? "Q" + qs[i] + "–" + qs[j] : qs.slice(i, j + 1).map(q => "Q" + q).join(", "));
+      i = j + 1;
+    }
+    return out.join(", ");
+  }
+  function lvChip(lv, big) {
+    const s = el("span", big ? "lvbadge" : "lvchip", big ? lv.label : lv.short);
+    s.dataset.lvi = lv.i;
+    return s;
+  }
+  function qChip(m, KEY, hlQ) {
+    const c = el("span", "q " + m.s + (hlQ && +hlQ === m.q ? " hl" : ""), "Q" + m.q);
+    c.append(el("sub", null, m.s === "blank" ? "—" : m.a));
+    c.title = "Q" + m.q + "：答案 " + KEY[m.q - 1] + "，" + (m.s === "blank" ? "未作答" : "所選 " + m.a);
+    return c;
+  }
+  function qList(list, KEY, hlQ) {
+    const d = el("div", "qs");
+    if (!list.length) { d.append(el("span", "allok", "全對")); return d; }
+    list.forEach(m => d.append(qChip(m, KEY, hlQ)));
+    return d;
+  }
+  function answerStrip(r, D) {
+    const inA = new Set(D.setA), inB = new Set(D.setB);
+    const g = el("div", "strip");
+    for (let q = 1; q <= 45; q++) {
+      const st = r.st[q - 1];
+      const c = el("div", "cell " + st + (inA.has(q) ? " inA" : inB.has(q) ? " inB" : ""));
+      c.append(el("span", "qn", q), el("span", "an", r.ans[q - 1] || "—"), el("span", "ky", st === "ok" ? "✓" : D.key[q - 1]));
+      c.title = "Q" + q + (inA.has(q) ? "（Set A）" : inB.has(q) ? "（Set B）" : "") + "：答案 " + D.key[q - 1] + "；" + (st === "blank" ? "未作答" : "所選 " + r.ans[q - 1]);
+      g.append(c);
+    }
+    return g;
+  }
+  function stripLegend() {
+    const lg = el("div", "legend");
+    lg.innerHTML = '<span><span class="sw" style="background:var(--ok-soft);border:1px solid var(--ok)"></span>答對</span>' +
+      '<span><span class="sw" style="background:var(--bad-soft);border:1px solid var(--bad)"></span>答錯</span>' +
+      '<span><span class="sw" style="border:1px dashed var(--blank)"></span>未作答</span>' +
+      '<span><span class="sw" style="height:4px;background:var(--setA)"></span>Set A</span>' +
+      '<span><span class="sw" style="height:4px;background:var(--setB)"></span>Set B</span>' +
+      '<span>大字＝所選答案，細字＝正確答案</span>';
+    return lg;
+  }
+
+  // ---------- idle logout ----------
+  let idleTimer = null;
+  function armIdle() {
+    const reset = () => { clearTimeout(idleTimer); idleTimer = setTimeout(() => location.reload(), 15 * 60 * 1000); };
+    ["pointerdown", "keydown", "scroll", "touchstart"].forEach(ev => window.addEventListener(ev, reset, { passive: true }));
+    reset();
+  }
+  function topbar(nameText, roleText) {
+    const bar = el("header", "topbar");
+    const left = el("div");
+    left.append(el("h1", null, TITLE), el("p", "sub", "45 題 MC · 報告日期 " + VAULT.date));
+    const who = el("div", "who");
+    who.append(el("span", "role", roleText), el("strong", null, nameText));
+    const out = el("button", "btn", "登出"); out.type = "button"; out.id = "btnLogout";
+    out.addEventListener("click", () => location.reload());
+    who.append(out);
+    bar.append(left, who);
+    return bar;
+  }
+
+  // ---------- login ----------
+  function renderLogin() {
+    app.textContent = "";
+    const shell = el("div", "login-shell");
+    const card = el("form", "panel login"); card.id = "loginForm"; card.noValidate = true; card.autocomplete = "off";
+    const brand = el("div", "brand");
+    brand.append(el("span", "eyebrow", "LPS · 6A MATHEMATICS"), el("h1", null, "DSE 2020 MC 成績查詢"), el("p", "sub", "請以學生或教師身份登入。"));
+    const tabs = el("div", "tabs"); tabs.setAttribute("role", "tablist");
+    const tS = el("button", "tab", "學生登入"); tS.type = "button"; tS.id = "tabStudent"; tS.setAttribute("role", "tab");
+    const tT = el("button", "tab", "教師登入"); tT.type = "button"; tT.id = "tabTeacher"; tT.setAttribute("role", "tab");
+    tabs.append(tS, tT);
+
+    const fNo = el("div", "field");
+    const lNo = el("label", null, "學號"); lNo.htmlFor = "loginNo";
+    const sNo = el("select"); sNo.id = "loginNo";
+    const o0 = el("option", null, "請選擇學號"); o0.value = ""; sNo.append(o0);
+    Object.keys(VAULT.students).sort().forEach(k => { const o = el("option", null, "6A" + k); o.value = k; sNo.append(o); });
+    fNo.append(lNo, sNo);
+
+    const fPw = el("div", "field");
+    const lPw = el("label", null, "密碼"); lPw.htmlFor = "loginPw";
+    const pw = el("input"); pw.type = "password"; pw.id = "loginPw"; pw.autocomplete = "current-password"; pw.spellcheck = false; pw.autocapitalize = "off";
+    const pwWrap = el("div", "pwwrap");
+    const eye = el("button", null, "顯示"); eye.type = "button"; eye.id = "togglePw";
+    eye.addEventListener("click", () => { const show = pw.type === "password"; pw.type = show ? "text" : "password"; eye.textContent = show ? "隱藏" : "顯示"; });
+    pwWrap.append(pw, eye);
+    fPw.append(lPw, pwWrap);
+
+    const err = el("p", "err"); err.id = "loginErr"; err.setAttribute("role", "alert");
+    const go = el("button", "btn primary go", "登入"); go.type = "submit"; go.id = "btnLogin";
+    const hint = el("p", "hint", "每位學生只可查閱自己的成績。忘記密碼請聯絡數學老師。");
+
+    let mode = "student";
+    function setMode(m) {
+      mode = m;
+      tS.setAttribute("aria-selected", m === "student" ? "true" : "false");
+      tT.setAttribute("aria-selected", m === "teacher" ? "true" : "false");
+      fNo.style.display = m === "student" ? "" : "none";
+      hint.textContent = m === "student" ? "每位學生只可查閱自己的成績。忘記密碼請聯絡數學老師。" : "教師可查閱全班成績及題目分析。";
+      err.textContent = ""; pw.value = "";
+      (m === "student" ? sNo : pw).focus();
+    }
+    tS.addEventListener("click", () => setMode("student"));
+    tT.addEventListener("click", () => setMode("teacher"));
+
+    card.addEventListener("submit", async e => {
+      e.preventDefault();
+      err.textContent = "";
+      let pass = pw.value.trim();
+      if (mode === "student") {
+        const no = sNo.value;
+        if (!no) { err.textContent = "請先選擇學號。"; sNo.focus(); return; }
+        if (!pass) { err.textContent = "請輸入密碼。"; pw.focus(); return; }
+        pass = pass.toLowerCase().split("@")[0];
+        go.disabled = true; go.textContent = "驗證中…";
+        try {
+          const data = await openBox(VAULT.students[no], pass, "student:" + no);
+          armIdle(); renderStudentPage(data);
+        } catch (ex) {
+          go.disabled = false; go.textContent = "登入";
+          err.textContent = ex && ex.message === "nocrypto" ? "此瀏覽器不支援加密功能，請改用最新版 Chrome、Safari 或 Edge。" : "學號或密碼不正確，請再試一次。";
+          pw.select();
+        }
+      } else {
+        if (!pass) { err.textContent = "請輸入教師密碼。"; pw.focus(); return; }
+        go.disabled = true; go.textContent = "驗證中…";
+        try {
+          const data = await openBox(VAULT.teacher, pass, "teacher");
+          armIdle(); renderTeacherPage(data);
+        } catch (ex) {
+          go.disabled = false; go.textContent = "登入";
+          err.textContent = ex && ex.message === "nocrypto" ? "此瀏覽器不支援加密功能，請改用最新版 Chrome、Safari 或 Edge。" : "教師密碼不正確。";
+          pw.select();
+        }
+      }
+    });
+    card.append(brand, tabs, fNo, fPw, err, go, hint);
+    shell.append(card);
+    app.append(shell);
+    setMode("student");
+  }
+
+  // ---------- student report (also used for teacher preview) ----------
+  // me: {no,en,zh,ans}, D: {key,setA,setB}, C: class stats {n,avg,max,min,avgA,avgB,qok[]}, R: {dense,tie}
+  function studentReport(me, D, C, R) {
+    const box = el("div"); box.style.display = "grid"; box.style.gap = "16px";
+    const r = score(me.ans, D);
+    if (!r) {
+      const n = el("section", "panel notice");
+      n.append(el("h2", null, "6A" + pad(me.no) + " " + me.zh), el("p", null, "系統內沒有你今次測驗的作答紀錄（可能缺席或未有入卷資料）。如有疑問，請聯絡數學老師。"));
+      box.append(n); return box;
+    }
+    // hero
+    const hero = el("section", "panel hero"); hero.id = "hero";
+    const m1 = el("div", "metric");
+    const v1 = el("span", "v", r.total); v1.append(el("small", null, " / 45"));
+    m1.append(el("span", "k", "總對題"), v1, el("span", "n", "正確率 " + fmt1(pct(r.total, 45)) + "% · 答錯 " + r.wrongN + " · 未答 " + r.blankN));
+    const m2 = el("div", "metric");
+    m2.append(el("span", "k", "等級"), lvChip(r.level, true), el("span", "n", r.level.min + "–" + r.level.max + " 題"));
+    const m3 = el("div", "metric");
+    const v3 = el("span", "v", "第 " + R.dense + " 名");
+    m3.append(el("span", "k", "全班排名"), v3, el("span", "n", "共 " + C.n + " 人應考" + (R.tie ? " · 與同學同分並列" : "")));
+    const m4 = el("div", "metric");
+    const v4 = el("span", "v", fmt1(C.avg)); v4.append(el("small", null, " / 45"));
+    m4.append(el("span", "k", "全班平均"), v4, el("span", "n", "最高 " + C.max + " · 最低 " + C.min));
+    hero.append(m1, m2, m3, m4);
+    box.append(hero);
+
+    // level scale
+    const sc = el("section", "panel scale"); sc.id = "levelScale";
+    sc.append(el("h2", null, "Level 分界"));
+    const bar = el("div", "scale-bar");
+    LEVELS.forEach(l => {
+      const seg = el("div", "seg" + (l.id === r.level.id ? "" : " dim"), l.id === "<2" ? "未達" : l.short.replace("L", ""));
+      seg.dataset.lvi = l.i; seg.style.width = ((l.max - l.min + 1) / 46 * 100) + "%";
+      seg.title = l.label + "：" + l.min + "–" + l.max + " 題";
+      bar.append(seg);
+    });
+    const mk = el("div", "marker"); mk.style.left = ((r.total + 0.5) / 46 * 100) + "%";
+    mk.append(el("b", null, r.total), el("i"));
+    bar.append(mk);
+    const ticks = el("div", "scale-ticks");
+    [0, 15, 20, 30, 38, 44].forEach(t => { const s = el("span", null, t); s.style.left = (t / 46 * 100) + "%"; ticks.append(s); });
+    const nextLv = LEVELS.find(l => l.min > r.total);
+    const nx = el("p", "next", nextLv ? "再答對 " + (nextLv.min - r.total) + " 題可達 " + nextLv.label + "（" + nextLv.min + " 題）。" : "已達最高等級。");
+    const lg = el("div", "scale-legend");
+    LEVELS.forEach(l => { const c = lvChip(l); c.textContent = l.label + " " + l.min + "–" + l.max; if (l.id === r.level.id) c.classList.add("on"); lg.append(c); });
+    sc.append(bar, ticks, nx, lg);
+    box.append(sc);
+
+    // set A / set B
+    const sets = el("section", "sets2");
+    [["a", "Set A · Level 3 題目", D.setA, r.aC, r.aW, C.avgA], ["b", "Set B · Level 4 題目", D.setB, r.bC, r.bW, C.avgB]].forEach(([k, title, qs, c, w, cav]) => {
+      const card = el("div", "panel setcard " + k); card.id = "set" + k.toUpperCase();
+      const big = el("span", "big", c); big.append(el("small", null, " / " + qs.length + " · " + Math.round(pct(c, qs.length)) + "%"));
+      const b = el("div", "bar big " + k); const i = el("i"); i.style.width = pct(c, qs.length) + "%"; b.append(i);
+      card.append(el("h3", null, title), big, b,
+        el("p", "cmp", "全班平均 " + fmt1(cav) + " / " + qs.length),
+        el("p", "defs", qs.length + " 題：" + ranges(qs)),
+        el("h3", null, "錯的題目（" + w.length + " 題）"), qList(w, D.key));
+      sets.append(card);
+    });
+    box.append(sets);
+
+    // full sheet
+    const sh = el("section", "panel sheet"); sh.id = "answerSheet";
+    sh.append(el("h2", null, "全卷 45 題作答"), stripLegend(), answerStrip(r, D));
+    box.append(sh);
+
+    // miss table
+    const inA = new Set(D.setA), inB = new Set(D.setB);
+    const missAll = []; for (let q = 1; q <= 45; q++) if (r.st[q - 1] !== "ok") missAll.push(q);
+    const mt = el("section", "panel sheet"); mt.id = "missList";
+    mt.append(el("h2", null, "需要溫習的題目（" + missAll.length + " 題）"));
+    mt.append(el("p", "defs", "全班答對率低而你答錯的題目屬較難題；全班答對率高而你答錯的題目，值得優先溫習。"));
+    const wrap = el("div", "scroll-x");
+    const tb = el("table", "misstable");
+    const thead = el("thead"); const hr = el("tr");
+    ["題號", "類別", "你的答案", "正確答案", "全班答對率"].forEach(h => hr.append(el("th", null, h)));
+    thead.append(hr); tb.append(thead);
+    const body = el("tbody");
+    missAll.forEach(q => {
+      const tr = el("tr");
+      tr.append(el("td", "mono", "Q" + q));
+      const t = el("td"); t.append(el("span", "tag " + (inA.has(q) ? "a" : inB.has(q) ? "b" : "o"), inA.has(q) ? "Set A" : inB.has(q) ? "Set B" : "其他"));
+      tr.append(t);
+      const ya = el("td", "c", r.ans[q - 1] || "未答"); ya.style.color = r.st[q - 1] === "blank" ? "var(--blank)" : "var(--bad)";
+      tr.append(ya, el("td", "c", D.key[q - 1]), el("td", "num", fmt1(pct(C.qok[q - 1], C.n)) + "%"));
+      body.append(tr);
+    });
+    tb.append(body); wrap.append(tb); mt.append(wrap);
+    box.append(mt);
+    return box;
+  }
+
+  function renderStudentPage(data) {
+    app.textContent = "";
+    const w = el("div", "wrap narrow");
+    w.append(topbar("6A" + pad(data.me.no) + " " + data.me.zh, "學生"));
+    w.append(studentReport(data.me, data, data.cls, data.rank || {}));
+    w.append(el("footer", "foot", "成績只供個人參考。等級按總對題計算：" + LEVELS.map(l => l.label + " " + l.min + "–" + l.max).join("、") + "。閒置 15 分鐘會自動登出。"));
+    app.append(w);
+    window.scrollTo(0, 0);
+  }
+
+  // ---------- teacher ----------
+  function renderTeacherPage(D) {
+    app.textContent = "";
+    const KEY = D.key, SETA = D.setA, SETB = D.setB;
+    const inA = new Set(SETA), inB = new Set(SETB);
+    const OTHER = []; for (let q = 1; q <= 45; q++) if (!inA.has(q) && !inB.has(q)) OTHER.push(q);
+    const students = D.students.map(s => Object.assign({ no: s.no, en: s.en, zh: s.zh, rawAns: s.ans, absent: !s.ans }, score(s.ans, D) || {}));
+    const present = students.filter(s => !s.absent);
+    const n = present.length;
+    const distinct = [...new Set(present.map(s => s.total))].sort((a, b) => b - a);
+    present.forEach(s => {
+      s.rankDense = distinct.indexOf(s.total) + 1;
+      s.rankStd = 1 + present.filter(t => t.total > s.total).length;
+      s.tie = present.filter(t => t.total === s.total).length > 1;
+    });
+    const qstat = [];
+    for (let q = 1; q <= 45; q++) {
+      let ok = 0, bad = 0, blank = 0;
+      present.forEach(s => { const x = s.st[q - 1]; if (x === "ok") ok++; else if (x === "bad") bad++; else blank++; });
+      qstat[q] = { ok, bad, blank };
+    }
+    const CLS = { n, avg: avg(present.map(s => s.total)), max: Math.max(...present.map(s => s.total)), min: Math.min(...present.map(s => s.total)), avgA: avg(present.map(s => s.aC)), avgB: avg(present.map(s => s.bC)), qok: qstat.slice(1).map(x => x.ok) };
+
+    const w = el("div", "wrap");
+    w.append(topbar("數學科老師", "教師"));
+    const sets = el("div", "sets");
+    const dA = el("div", "setdef a"); dA.append(el("b", null, "Set A · Level 3"), el("span", null, SETA.length + " 題：" + ranges(SETA)));
+    const dB = el("div", "setdef b"); dB.append(el("b", null, "Set B · Level 4"), el("span", null, SETB.length + " 題：" + ranges(SETB)));
+    sets.append(dA, dB); w.append(sets);
+
+    // tiles
+    const tiles = el("section", "tiles"); tiles.id = "tiles";
+    const absentList = students.filter(s => s.absent);
+    const tile = (k, v, small, note, cls) => { const d = el("div", "tile " + (cls || "")); const vv = el("span", "v", v); vv.append(el("small", null, small)); d.append(el("span", "k", k), vv, el("span", "n", note)); return d; };
+    tiles.append(
+      tile("應考人數", n, " / " + students.length, absentList.length ? "沒有作答紀錄：" + absentList.map(s => "6A" + pad(s.no) + " " + s.zh).join("、") : "全班應考"),
+      tile("全班平均總對題", fmt1(CLS.avg), " / 45", "最高 " + CLS.max + " · 最低 " + CLS.min),
+      tile("Set A 平均對題（Level 3）", fmt1(CLS.avgA), " / " + SETA.length, "正確率 " + fmt1(pct(CLS.avgA, SETA.length)) + "%", "a"),
+      tile("Set B 平均對題（Level 4）", fmt1(CLS.avgB), " / " + SETB.length, "正確率 " + fmt1(pct(CLS.avgB, SETB.length)) + "%", "b"));
+    w.append(tiles);
+
+    // level distribution
+    const lvSec = el("section", "panel levels"); lvSec.id = "levelDist";
+    const lt = el("table"); const lth = el("thead"); const lhr = el("tr");
+    ["等級", "總對題", "人數", "平均總對題", "Set A 正確率", "Set B 正確率"].forEach(h => lhr.append(el("th", null, h)));
+    lth.append(lhr); lt.append(lth);
+    const ltb = el("tbody");
+    LEVELS.slice().reverse().forEach(l => {
+      const p = present.filter(s => s.level.id === l.id);
+      const tr = el("tr");
+      const c0 = el("td"); c0.append(lvChip(l)); tr.append(c0);
+      tr.append(el("td", null, l.min + "–" + l.max));
+      const cn = el("td", null, p.length); const cb = el("span", "cntbar"); cb.style.width = (p.length * 8) + "px"; if (p.length) cn.append(cb); tr.append(cn);
+      tr.append(el("td", null, p.length ? fmt1(avg(p.map(s => s.total))) : "—"),
+        el("td", null, p.length ? fmt1(pct(avg(p.map(s => s.aC)), SETA.length)) + "%" : "—"),
+        el("td", null, p.length ? fmt1(pct(avg(p.map(s => s.bC)), SETB.length)) + "%" : "—"));
+      ltb.append(tr);
+    });
+    lt.append(ltb); lvSec.append(el("h2", null, "等級分佈（按新 Level 分界）"), lt);
+    lvSec.firstChild.style.marginBottom = "8px";
+    w.append(lvSec);
+
+    // filters + ledger
+    const sec = el("section", "panel"); sec.id = "studentSection";
+    const f = el("div", "filters");
+    f.innerHTML =
+      '<div class="frow">' +
+      '<input class="search" id="fSearch" type="search" placeholder="搜尋 學號 / 中文名 / English name" aria-label="搜尋學生">' +
+      '<div class="fgroup" role="group" aria-label="等級篩選" id="lvChips"><span class="flabel">等級</span></div>' +
+      '</div>' +
+      '<div class="frow">' +
+      '<div class="fgroup"><label class="flabel" for="aMin">Set A 對題</label><input class="rng" id="aMin" type="number" min="0" max="' + SETA.length + '" value="0"><span class="flabel">至</span><input class="rng" id="aMax" type="number" min="0" max="' + SETA.length + '" value="' + SETA.length + '" aria-label="Set A 最多對題"></div>' +
+      '<div class="fgroup"><label class="flabel" for="bMin">Set B 對題</label><input class="rng" id="bMin" type="number" min="0" max="' + SETB.length + '" value="0"><span class="flabel">至</span><input class="rng" id="bMax" type="number" min="0" max="' + SETB.length + '" value="' + SETB.length + '" aria-label="Set B 最多對題"></div>' +
+      '<div class="fgroup"><label class="flabel" for="fQ">題目</label><select class="sel" id="fQ"></select>' +
+      '<select class="sel" id="fQmode" aria-label="題目篩選方式"><option value="notok">未答對（錯 + 未答）</option><option value="bad">只計答錯</option><option value="blank">只計未答</option><option value="ok">答對</option></select></div>' +
+      '</div>' +
+      '<div class="frow">' +
+      '<label class="check" for="fAbsent"><input type="checkbox" id="fAbsent" checked> 顯示沒有作答紀錄的學生</label>' +
+      '<div class="fgroup"><label class="flabel" for="fRank">排名計法</label><select class="sel" id="fRank"><option value="dense">按報告（同分同名次，下一名不跳號）</option><option value="std">標準（同分同名次，下一名跳號）</option></select></div>' +
+      '<button class="btn" type="button" id="btnReset">重設篩選</button>' +
+      '<button class="btn primary" type="button" id="btnCopy">複製表格（可貼上 Excel）</button>' +
+      '</div>' +
+      '<div class="status"><span id="count"></span><div class="legend">' +
+      '<span><span class="sw" style="background:var(--bad-soft);border:1px solid var(--bad)"></span>答錯（小字為學生所選）</span>' +
+      '<span><span class="sw" style="border:1px dashed var(--blank)"></span>未作答</span>' +
+      '<span>按學生一行可展開 45 題答案</span><span class="toast" id="toast" role="status"></span></div></div>';
+    const lvChips = f.querySelector("#lvChips");
+    LEVELS.forEach(l => { const b = el("button", "chip-toggle", l.short); b.type = "button"; b.id = "lv-" + l.i; b.dataset.lv = l.id; b.setAttribute("aria-pressed", "false"); lvChips.append(b); });
+    const ledger = el("div", "ledger");
+    const tbl = el("table", "st"); tbl.id = "tbl";
+    tbl.innerHTML = '<thead><tr>' +
+      '<th class="sortable" data-sort="no">學號<span class="arr"></span></th>' +
+      '<th class="sortable" data-sort="name">學生<span class="arr"></span></th>' +
+      '<th class="sortable" data-sort="level">等級<span class="arr"></span></th>' +
+      '<th class="sortable" data-sort="total" style="text-align:right">總對題 /45<span class="arr"></span></th>' +
+      '<th class="sortable" data-sort="rank" style="text-align:right">全班排名<span class="arr"></span></th>' +
+      '<th class="sortable ca" data-sort="aC">Set A 對題<span class="arr"></span></th>' +
+      '<th class="ca">Set A 錯的題目</th>' +
+      '<th class="sortable cb" data-sort="bC">Set B 對題<span class="arr"></span></th>' +
+      '<th class="cb">Set B 錯的題目</th></tr></thead><tbody id="tbody"></tbody>';
+    ledger.append(tbl);
+    sec.append(f, ledger);
+    w.append(sec);
+
+    const qa = el("section", "qa"); qa.id = "qa";
+    w.append(qa);
+    w.append(el("footer", "foot", "等級按總對題計算：" + LEVELS.map(l => l.label + " " + l.min + "–" + l.max).join("、") + "。排名按 Test Ranking Analysis 的計法（同分同名次、下一名不跳號），可在篩選列改用標準計法。「錯的題目」包括答錯及未作答；答案 * 表示劃了多於一個答案或無效。閒置 15 分鐘會自動登出。"));
+    app.append(w);
+
+    const $ = id => document.getElementById(id);
+    const fQ = $("fQ");
+    { const o = el("option", null, "全部題目（不篩選）"); o.value = ""; fQ.append(o); }
+    [["Set A · Level 3", SETA], ["Set B · Level 4", SETB], ["其他題目", OTHER]].forEach(([label, qs]) => {
+      const g = document.createElement("optgroup"); g.label = label;
+      qs.forEach(q => { const o = el("option", null, "Q" + q + "（答案 " + KEY[q - 1] + "，答對 " + qstat[q].ok + "/" + n + "）"); o.value = q; g.append(o); });
+      fQ.append(g);
+    });
+
+    const state = { search: "", levels: new Set(), aMin: 0, aMax: SETA.length, bMin: 0, bMax: SETB.length, q: "", qmode: "notok", showAbsent: true, rank: "dense", sort: "no", dir: 1, open: new Set() };
+    const rankOf = s => state.rank === "dense" ? s.rankDense : s.rankStd;
+    function passes(s) {
+      const t = state.search.trim().toLowerCase();
+      if (t && !("6a" + pad(s.no) + " " + s.no + " " + s.en.toLowerCase() + " " + s.zh).includes(t)) return false;
+      if (s.absent) {
+        const narrowed = state.levels.size || state.aMin > 0 || state.aMax < SETA.length || state.bMin > 0 || state.bMax < SETB.length || state.q;
+        return state.showAbsent && !narrowed;
+      }
+      if (state.levels.size && !state.levels.has(s.level.id)) return false;
+      if (s.aC < state.aMin || s.aC > state.aMax) return false;
+      if (s.bC < state.bMin || s.bC > state.bMax) return false;
+      if (state.q) {
+        const x = s.st[state.q - 1];
+        if (state.qmode === "notok" && x === "ok") return false;
+        if (state.qmode === "bad" && x !== "bad") return false;
+        if (state.qmode === "blank" && x !== "blank") return false;
+        if (state.qmode === "ok" && x !== "ok") return false;
+      }
+      return true;
+    }
+    function cmp(a, b) {
+      if (a.absent !== b.absent) return a.absent ? 1 : -1;
+      if (a.absent) return a.no - b.no;
+      let va, vb;
+      switch (state.sort) {
+        case "name": va = a.en; vb = b.en; break;
+        case "level": case "total": va = a.total; vb = b.total; break;
+        case "rank": va = rankOf(a); vb = rankOf(b); break;
+        case "aC": va = a.aC; vb = b.aC; break;
+        case "bC": va = a.bC; vb = b.bC; break;
+        default: va = a.no; vb = b.no;
+      }
+      if (va < vb) return -state.dir;
+      if (va > vb) return state.dir;
+      return a.no - b.no;
+    }
+    function scoreCell(v, max, cls) {
+      const d = el("div", "score");
+      const s = el("span", "s", v); s.append(el("small", null, " / " + max + " · " + Math.round(pct(v, max)) + "%"));
+      const b = el("div", "bar " + cls); const i = el("i"); i.style.width = pct(v, max) + "%"; b.append(i);
+      d.append(s, b); return d;
+    }
+    const td = (child, cls) => { const t = el("td", cls); if (child instanceof Node) t.append(child); else t.textContent = child; return t; };
+    function detailRow(s) {
+      const tr = el("tr", "detail");
+      const cell = el("td"); cell.colSpan = 9;
+      const h = el("div", "strip-h");
+      h.append(el("strong", null, "6A" + pad(s.no) + " " + s.zh + " 全卷 45 題"), el("span", null, "答對 " + s.total + " · 答錯 " + s.wrongN + " · 未答 " + s.blankN));
+      const pv = el("button", "btn", "以學生畫面檢視"); pv.type = "button"; pv.dataset.preview = s.no;
+      h.append(pv);
+      cell.append(h, stripLegend(), answerStrip(s, D));
+      cell.lastChild.style.marginTop = "8px";
+      tr.append(cell); return tr;
+    }
+    let shown = [];
+    function render() {
+      shown = students.filter(passes).sort(cmp);
+      const tb = $("tbody"); tb.textContent = "";
+      if (!shown.length) { const tr = el("tr"); const t = el("td", "empty", "沒有學生符合目前的篩選條件。請放寬條件或按「重設篩選」。"); t.colSpan = 9; tr.append(t); tb.append(tr); }
+      shown.forEach(s => {
+        const tr = el("tr", "main" + (s.absent ? " absent" : "") + (state.open.has(s.no) ? " open" : ""));
+        tr.tabIndex = s.absent ? -1 : 0; tr.dataset.no = s.no;
+        tr.append(td("6A" + pad(s.no), "mono"));
+        const nm = el("div", "nm"); nm.append(el("span", "zh", s.zh), el("span", "en", s.en)); tr.append(td(nm));
+        if (s.absent) {
+          tr.append(td("—"));
+          const t = el("td"); t.colSpan = 6; t.append(el("span", "abs-tag", "沒有作答紀錄（缺席或未有入卷資料），不計入排名及平均")); tr.append(t);
+          tb.append(tr); return;
+        }
+        tr.append(td(lvChip(s.level)));
+        const tot = el("div"); const tv = el("span", "tot", s.total); tv.append(el("small", null, " /45"));
+        tot.append(tv, el("span", "breakdown", "錯 " + s.wrongN + " · 未答 " + s.blankN)); tr.append(td(tot, "r"));
+        const rk = el("div"); rk.append(el("span", "rank", rankOf(s)));
+        if (s.tie) rk.append(el("span", "tie", "並列"));
+        rk.append(el("span", "breakdown", "共 " + n + " 人")); tr.append(td(rk, "r"));
+        tr.append(td(scoreCell(s.aC, SETA.length, "a")), td(qList(s.aW, KEY, state.q)), td(scoreCell(s.bC, SETB.length, "b")), td(qList(s.bW, KEY, state.q)));
+        tb.append(tr);
+        if (state.open.has(s.no)) tb.append(detailRow(s));
+      });
+      const pres = shown.filter(s => !s.absent);
+      let txt = "顯示 " + shown.length + " / " + students.length + " 位學生";
+      if (pres.length) txt += " · 篩選結果平均：總對題 " + fmt1(avg(pres.map(s => s.total))) + "、Set A " + fmt1(avg(pres.map(s => s.aC))) + "、Set B " + fmt1(avg(pres.map(s => s.bC)));
+      $("count").textContent = ""; $("count").append(el("strong", null, txt));
+      document.querySelectorAll(".st th.sortable").forEach(th => { th.querySelector(".arr").textContent = th.dataset.sort === state.sort ? (state.dir === 1 ? "▲" : "▼") : ""; });
+      document.querySelectorAll(".qrow").forEach(b => b.classList.toggle("on", String(b.dataset.q) === String(state.q)));
+    }
+
+    function qCard(title, cls, qs, desc) {
+      const card = el("div", "panel qcard " + cls);
+      card.append(el("h3", null, title), el("p", "note", desc));
+      const low = qs.filter(q => pct(qstat[q].ok, n) < 50).sort((a, b) => qstat[a].ok - qstat[b].ok);
+      if (cls === "a" && low.length) {
+        const p = el("p", "note"); p.append(el("span", "flag", "正確率低於 50%："), document.createTextNode(low.map(q => "Q" + q + "（" + fmt1(pct(qstat[q].ok, n)) + "%，" + qstat[q].blank + " 人未答）").join("、")));
+        card.append(p);
+      }
+      const list = el("div", "qlist");
+      qs.forEach(q => {
+        const st = qstat[q];
+        const b = el("button", "qrow"); b.type = "button"; b.dataset.q = q; b.id = "qrow-" + q;
+        const stack = el("span", "stack");
+        [["s-ok", st.ok], ["s-bad", st.bad], ["s-blank", st.blank]].forEach(([c, v]) => { const i = el("i", c); i.style.width = pct(v, n) + "%"; stack.append(i); });
+        const pp = el("span", "qp", fmt1(pct(st.ok, n)) + "%"); if (pct(st.ok, n) < 50) pp.style.color = "var(--bad)";
+        b.append(el("span", "ql", "Q" + q), stack, pp);
+        b.setAttribute("aria-label", "Q" + q + " 答對 " + st.ok + "、答錯 " + st.bad + "、未答 " + st.blank + "，按此篩選未答對的學生");
+        b.addEventListener("mousemove", e => { tip.textContent = "Q" + q + "（答案 " + KEY[q - 1] + "）答對 " + st.ok + " · 答錯 " + st.bad + " · 未答 " + st.blank + "　按一下：列出未答對的學生"; tip.style.display = "block"; tip.style.left = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = (e.clientY + 14) + "px"; });
+        b.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+        b.addEventListener("click", () => {
+          tip.style.display = "none";
+          if (String(state.q) === String(q)) state.q = ""; else { state.q = q; state.qmode = "notok"; }
+          fQ.value = state.q; $("fQmode").value = state.qmode; render();
+          if (state.q) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        list.append(b);
+      });
+      const lg = el("div", "legend");
+      lg.innerHTML = '<span><span class="sw" style="background:var(--ok)"></span>答對</span><span><span class="sw" style="background:var(--bad)"></span>答錯</span><span><span class="sw" style="background:var(--blank);opacity:.45"></span>未答</span><span>按題目可篩選學生</span>';
+      card.append(list, lg);
+      return card;
+    }
+    qa.append(qCard("Set A · Level 3 各題正確率", "a", SETA, SETA.length + " 題，全班 " + n + " 人應考。"),
+      qCard("Set B · Level 4 各題正確率", "b", SETB, SETB.length + " 題，全班 " + n + " 人應考。"),
+      qCard("其他題目（不屬 Set A / B）", "o", OTHER, OTHER.length + " 題：" + ranges(OTHER) + "。只計入總對題。"));
+
+    // preview overlay
+    function openPreview(no) {
+      const s = students.find(x => x.no === no);
+      const ov = el("div", "overlay"); ov.id = "previewOverlay"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true");
+      const sw = el("div", "sheetwrap");
+      const bar = el("div", "ovbar"); bar.append(el("span", null, "學生畫面預覽：6A" + pad(no) + " " + s.zh + " 登入後看到的內容"));
+      const close = el("button", "btn primary", "關閉預覽"); close.type = "button"; close.id = "btnClosePreview";
+      bar.append(close);
+      const inner = el("div", "wrap narrow");
+      inner.append(studentReport({ no: s.no, en: s.en, zh: s.zh, ans: s.rawAns }, D, CLS, { dense: s.rankDense, tie: s.tie }));
+      sw.append(bar, inner); ov.append(sw);
+      const shut = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+      const onKey = e => { if (e.key === "Escape") shut(); };
+      close.addEventListener("click", shut);
+      ov.addEventListener("click", e => { if (e.target === ov) shut(); });
+      document.addEventListener("keydown", onKey);
+      document.body.append(ov); close.focus();
+    }
+
+    // events
+    $("fSearch").addEventListener("input", e => { state.search = e.target.value; render(); });
+    lvChips.querySelectorAll(".chip-toggle").forEach(b => b.addEventListener("click", () => {
+      const lv = b.dataset.lv; if (state.levels.has(lv)) state.levels.delete(lv); else state.levels.add(lv);
+      b.setAttribute("aria-pressed", state.levels.has(lv) ? "true" : "false"); render();
+    }));
+    const numIn = (id, max, k) => $(id).addEventListener("input", e => { let v = parseInt(e.target.value, 10); if (isNaN(v)) return; state[k] = Math.max(0, Math.min(max, v)); render(); });
+    numIn("aMin", SETA.length, "aMin"); numIn("aMax", SETA.length, "aMax"); numIn("bMin", SETB.length, "bMin"); numIn("bMax", SETB.length, "bMax");
+    fQ.addEventListener("change", e => { state.q = e.target.value ? +e.target.value : ""; render(); });
+    $("fQmode").addEventListener("change", e => { state.qmode = e.target.value; render(); });
+    $("fAbsent").addEventListener("change", e => { state.showAbsent = e.target.checked; render(); });
+    $("fRank").addEventListener("change", e => { state.rank = e.target.value; render(); });
+    document.querySelectorAll(".st th.sortable").forEach(th => th.addEventListener("click", () => {
+      const k = th.dataset.sort;
+      if (state.sort === k) state.dir = -state.dir; else { state.sort = k; state.dir = ["total", "aC", "bC", "level"].includes(k) ? -1 : 1; }
+      render();
+    }));
+    $("btnReset").addEventListener("click", () => {
+      Object.assign(state, { search: "", aMin: 0, aMax: SETA.length, bMin: 0, bMax: SETB.length, q: "", qmode: "notok", showAbsent: true, sort: "no", dir: 1 });
+      state.levels.clear(); state.open.clear();
+      $("fSearch").value = ""; $("aMin").value = 0; $("aMax").value = SETA.length; $("bMin").value = 0; $("bMax").value = SETB.length;
+      fQ.value = ""; $("fQmode").value = "notok"; $("fAbsent").checked = true;
+      lvChips.querySelectorAll(".chip-toggle").forEach(b => b.setAttribute("aria-pressed", "false"));
+      render();
+    });
+    const toggleRow = no => { if (state.open.has(no)) state.open.delete(no); else state.open.add(no); render(); };
+    $("tbody").addEventListener("click", e => {
+      const pv = e.target.closest("[data-preview]"); if (pv) { openPreview(+pv.dataset.preview); return; }
+      if (e.target.closest("tr.detail")) return;
+      const tr = e.target.closest("tr.main"); if (!tr || tr.classList.contains("absent")) return;
+      toggleRow(+tr.dataset.no);
+    });
+    $("tbody").addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const tr = e.target.closest("tr.main"); if (!tr || tr.classList.contains("absent")) return;
+      e.preventDefault(); toggleRow(+tr.dataset.no);
+    });
+    $("btnCopy").addEventListener("click", async () => {
+      const fmtQ = list => list.map(m => "Q" + m.q + (m.s === "blank" ? "(未答)" : "(" + m.a + ")")).join(" ");
+      const rows = [["學號", "英文姓名", "中文姓名", "等級", "總對題/45", "全班排名", "Set A 對題/" + SETA.length, "Set A 錯的題目", "Set B 對題/" + SETB.length, "Set B 錯的題目"].join("\t")];
+      shown.forEach(s => {
+        if (s.absent) rows.push(["6A" + pad(s.no), s.en, s.zh, "", "沒有作答紀錄", "", "", "", "", ""].join("\t"));
+        else rows.push(["6A" + pad(s.no), s.en, s.zh, s.level.label, s.total, rankOf(s), s.aC, fmtQ(s.aW) || "全對", s.bC, fmtQ(s.bW) || "全對"].join("\t"));
+      });
+      const msg = $("toast");
+      try { await navigator.clipboard.writeText(rows.join("\n")); msg.style.color = "var(--ok)"; msg.textContent = "已複製 " + shown.length + " 行，可直接貼上 Excel"; }
+      catch (err) { msg.style.color = "var(--bad)"; msg.textContent = "瀏覽器不允許複製，請稍後再試"; }
+      setTimeout(() => { msg.textContent = ""; }, 3500);
+    });
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  renderLogin();
+})();
+</script>
+</body>
+</html>
